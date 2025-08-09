@@ -1,34 +1,42 @@
-<form id="absensiForm">
-  <input type="text" id="nama" placeholder="Nama siswa" required>
-  <select id="status">
-    <option value="Hadir">Hadir</option>
-    <option value="Sakit">Sakit</option>
-    <option value="Izin">Izin</option>
-    <option value="Alpa">Alpa</option>
-  </select>
-  <button type="submit">Kirim</button>
-</form>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Absensi Online</title>
+</head>
+<body>
+    <h1>Form Absensi</h1>
+    <form id="absensiForm">
+        <input type="text" id="nama" placeholder="Nama siswa" required>
+        <select id="status">
+            <option value="Hadir">Hadir</option>
+            <option value="Sakit">Sakit</option>
+            <option value="Izin">Izin</option>
+            <option value="Alpa">Alpa</option>
+        </select>
+        <button type="submit">Kirim</button>
+    </form>
 
-<script>
-document.getElementById("absensiForm").addEventListener("submit", function(e) {
-    e.preventDefault();
+    <script>
+    document.getElementById("absensiForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        let nama = document.getElementById("nama").value;
+        let status = document.getElementById("status").value;
 
-    let nama = document.getElementById("nama").value;
-    let status = document.getElementById("status").value;
-
-    fetch("https://script.google.com/macros/s/AKfycbyLSo54atcJzhgPOLYr9nUj0yZvOaxhSe7Q3Y2KmkE/dev", {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nama: nama, status: status })
-    })
-    .then(() => {
-        alert("Absensi berhasil dikirim!");
-    })
-    .catch(err => {
-        console.error(err);
-        alert("Gagal mengirim absensi.");
+        fetch("https://script.google.com/macros/s/AKfycbz8bkHup-P53gtwzEzCTFexVfT60_SPOBpU9oOM1uVeIMz8aQ1o4GBubqPk3L985zIp/exec", {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nama: nama, status: status })
+        })
+        .then(() => {
+            alert("Absensi berhasil dikirim!");
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Gagal mengirim absensi.");
+        });
     });
-});
-</script>
-
+    </script>
+</body>
+</html>
