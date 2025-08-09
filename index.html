@@ -1,42 +1,71 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <title>Absensi Online</title>
+  <meta charset="UTF-8">
+  <title>Form Absensi</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 300px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background: green;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: darkgreen;
+    }
+  </style>
 </head>
 <body>
-    <h1>Form Absensi</h1>
-    <form id="absensiForm">
-        <input type="text" id="nama" placeholder="Nama siswa" required>
-        <select id="status">
-            <option value="Hadir">Hadir</option>
-            <option value="Sakit">Sakit</option>
-            <option value="Izin">Izin</option>
-            <option value="Alpa">Alpa</option>
-        </select>
-        <button type="submit">Kirim</button>
-    </form>
+  <div class="container">
+    <h2>Absensi Siswa</h2>
+    <input type="text" id="nama" placeholder="Nama" required>
+    <select id="status">
+      <option value="Hadir">Hadir</option>
+      <option value="Izin">Izin</option>
+      <option value="Sakit">Sakit</option>
+      <option value="Alpa">Alpa</option>
+    </select>
+    <button onclick="kirimAbsensi()">Kirim</button>
+    <p id="pesan"></p>
+  </div>
 
-    <script>
-    document.getElementById("absensiForm").addEventListener("submit", function(e) {
-        e.preventDefault();
-        let nama = document.getElementById("nama").value;
-        let status = document.getElementById("status").value;
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbz8bkHup-P53gtwzEzCTFexVfT60_SPOBpU9oOM1uVeIMz8aQ1o4GBubqPk3L985zIp/exec";
 
-        fetch("https://script.google.com/macros/s/AKfycbz8bkHup-P53gtwzEzCTFexVfT60_SPOBpU9oOM1uVeIMz8aQ1o4GBubqPk3L985zIp/exec", {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nama: nama, status: status })
-        })
-        .then(() => {
-            alert("Absensi berhasil dikirim!");
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Gagal mengirim absensi.");
-        });
-    });
-    </script>
-</body>
-</html>
+    function kirimAbsensi() {
+      const nama = document.getElementById("nama").value;
+      const status = document.getElementById("status").value;
+
+      if (!nama) {
+        alert("Nama wajib diisi!");
+        return;
+      }
+
+      fetch(scriptURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nama: nama, status: status })
+      })
+      .then(response => response.json())
+      .then(data => {
