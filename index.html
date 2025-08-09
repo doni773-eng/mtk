@@ -5,88 +5,84 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Absensi Siswa</title>
 <style>
-    body {
-        font-family: 'Poppins', sans-serif;
-        background: linear-gradient(135deg, #1f1c2c, #928dab);
-        color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
-    .container {
-        background: rgba(255,255,255,0.1);
-        padding: 25px;
-        border-radius: 15px;
-        box-shadow: 0 0 20px rgba(255,255,255,0.3);
-        width: 300px;
-        text-align: center;
-    }
-    input, select, button {
-        width: 100%;
-        padding: 10px;
-        margin: 10px 0;
-        border-radius: 8px;
-        border: none;
-        font-size: 16px;
-    }
-    input, select {
-        background: rgba(255,255,255,0.8);
-        color: black;
-    }
-    button {
-        background: #ff6a00;
-        color: white;
-        cursor: pointer;
-        font-weight: bold;
-    }
-    button:hover {
-        background: #ff8c42;
-    }
+  body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #1a73e8, #00bcd4);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  .container {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    width: 300px;
+    backdrop-filter: blur(10px);
+  }
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  input, select, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 8px;
+  }
+  button {
+    background-color: #ff9800;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #e68900;
+  }
 </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>📋 Absensi Siswa</h2>
-    <input type="text" id="nama" placeholder="Masukkan Nama">
-    <select id="keterangan">
-        <option value="Hadir">Hadir</option>
-        <option value="Izin">Izin</option>
-        <option value="Sakit">Sakit</option>
-        <option value="Alpa">Alpa</option>
+  <h2>Absensi Siswa</h2>
+  <form id="absensiForm">
+    <input type="text" id="nama" placeholder="Nama Siswa" required>
+    <input type="text" id="kelas" placeholder="Kelas" required>
+    <select id="keterangan" required>
+      <option value="">-- Pilih Keterangan --</option>
+      <option value="Hadir">Hadir</option>
+      <option value="Sakit">Sakit</option>
+      <option value="Izin">Izin</option>
+      <option value="Alpha">Alpha</option>
     </select>
-    <button onclick="kirimAbsensi()">Kirim</button>
-    <p id="status"></p>
+    <button type="submit">Kirim</button>
+  </form>
+  <p id="status"></p>
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbxVV-BuX7Qbq8ly5lNuHckF49hyERxwtwo0djRIJFhiw2OlP66nR-jrwyuhTGwTeFQn/exec"; // Ganti dengan URL dari Apps Script
+document.getElementById("absensiForm").addEventListener("submit", function(e) {
+  e.preventDefault();
 
-function kirimAbsensi() {
-    const nama = document.getElementById("nama").value;
-    const keterangan = document.getElementById("keterangan").value;
-    const status = document.getElementById("status");
+  let data = {
+    nama: document.getElementById("nama").value,
+    kelas: document.getElementById("kelas").value,
+    keterangan: document.getElementById("keterangan").value
+  };
 
-    if (!nama) {
-        status.innerText = "⚠ Nama tidak boleh kosong";
-        return;
-    }
+  fetch("https://script.google.com/macros/s/AKfycbxVV-BuX7Qbq8ly5lNuHckF49hyERxwtwo0djRIJFhiw2OlP66nR-jrwyuhTGwTeFQn/exec", {
+    method: "POST",
+    mode: "no-cors", // Agar tidak error CORS
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
 
-    fetch(scriptURL, {
-        method: "POST",
-        body: JSON.stringify({ nama: nama, keterangan: keterangan }),
-        headers: { "Content-Type": "application/json" }
-    })
-    .then(res => res.json())
-    .then(data => {
-        status.innerText = "✅ Absensi berhasil dikirim";
-        document.getElementById("nama").value = "";
-    })
-    .catch(err => {
-        status.innerText = "❌ Gagal mengirim, cek koneksi internet";
-    });
-}
+  document.getElementById("status").innerText = "✅ Absensi berhasil dikirim!";
+  document.getElementById("absensiForm").reset();
+});
 </script>
 
 </body>
