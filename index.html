@@ -1,95 +1,93 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Absensi Siswa</title>
-  <style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Absensi Siswa</title>
+<style>
     body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #1e1e2f, #2b2b3c);
-      color: white;
-      text-align: center;
-      padding: 20px;
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #1f1c2c, #928dab);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
     }
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 10px;
-    }
-    form {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 20px;
-      border-radius: 15px;
-      max-width: 400px;
-      margin: auto;
-      box-shadow: 0px 0px 15px rgba(0,255,255,0.3);
+    .container {
+        background: rgba(255,255,255,0.1);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(255,255,255,0.3);
+        width: 300px;
+        text-align: center;
     }
     input, select, button {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 8px;
+        border: none;
+        font-size: 16px;
     }
     input, select {
-      background: rgba(255,255,255,0.9);
+        background: rgba(255,255,255,0.8);
+        color: black;
     }
     button {
-      background: linear-gradient(90deg, #00c6ff, #0072ff);
-      color: white;
-      cursor: pointer;
-      font-weight: bold;
-      transition: transform 0.2s ease;
+        background: #ff6a00;
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
     }
     button:hover {
-      transform: scale(1.05);
+        background: #ff8c42;
     }
-    .status {
-      margin-top: 10px;
-      font-weight: bold;
-    }
-  </style>
+</style>
 </head>
 <body>
 
-  <h1>Absensi Siswa</h1>
-  <form id="absensiForm">
-    <input type="text" id="nama" name="nama" placeholder="Nama Siswa" required />
-    <select id="status" name="status" required>
-      <option value="">Pilih Kehadiran</option>
-      <option value="Hadir">Hadir</option>
-      <option value="Izin">Izin</option>
-      <option value="Sakit">Sakit</option>
-      <option value="Alpa">Alpa</option>
+<div class="container">
+    <h2>📋 Absensi Siswa</h2>
+    <input type="text" id="nama" placeholder="Masukkan Nama">
+    <select id="keterangan">
+        <option value="Hadir">Hadir</option>
+        <option value="Izin">Izin</option>
+        <option value="Sakit">Sakit</option>
+        <option value="Alpa">Alpa</option>
     </select>
-    <button type="submit">Kirim Absensi</button>
-    <div class="status" id="pesan"></div>
-  </form>
+    <button onclick="kirimAbsensi()">Kirim</button>
+    <p id="status"></p>
+</div>
 
-  <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbz8bkHup-P53gtwzEzCTFexVfT60_SPOBpU9oOM1uVeIMz8aQ1o4GBubqPk3L985zIp/exec"; // URL Google Apps Script Web App
+<script>
+const scriptURL = "https://script.google.com/macros/s/AKfycbz8bkHup-P53gtwzEzCTFexVfT60_SPOBpU9oOM1uVeIMz8aQ1o4GBubqPk3L985zIp/exec"; // Ganti dengan URL dari Apps Script
 
-    document.getElementById("absensiForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      
-      let nama = document.getElementById("nama").value;
-      let status = document.getElementById("status").value;
+function kirimAbsensi() {
+    const nama = document.getElementById("nama").value;
+    const keterangan = document.getElementById("keterangan").value;
+    const status = document.getElementById("status");
 
-      fetch(scriptURL, {
+    if (!nama) {
+        status.innerText = "⚠ Nama tidak boleh kosong";
+        return;
+    }
+
+    fetch(scriptURL, {
         method: "POST",
-        body: new URLSearchParams({ nama, status })
-      })
-      .then(response => {
-        document.getElementById("pesan").textContent = "✅ Absensi berhasil dikirim!";
-        document.getElementById("absensiForm").reset();
-      })
-      .catch(error => {
-        document.getElementById("pesan").textContent = "❌ Gagal mengirim absensi!";
-        console.error("Error!", error);
-      });
+        body: JSON.stringify({ nama: nama, keterangan: keterangan }),
+        headers: { "Content-Type": "application/json" }
+    })
+    .then(res => res.json())
+    .then(data => {
+        status.innerText = "✅ Absensi berhasil dikirim";
+        document.getElementById("nama").value = "";
+    })
+    .catch(err => {
+        status.innerText = "❌ Gagal mengirim, cek koneksi internet";
     });
-  </script>
+}
+</script>
 
 </body>
 </html>
