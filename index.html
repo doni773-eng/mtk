@@ -1,71 +1,293 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Form Absensi</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Absensi Siswa (Offline → Auto Sync)</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .container {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      width: 300px;
-    }
-    input, select, button {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
-      background: green;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background: darkgreen;
-    }
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto; margin:16px; background:#f6f9fb}
+    h1{color:#055a5a; text-align:center}
+    .card{background:#fff;padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.06); margin-bottom:12px}
+    label{display:block;margin-bottom:6px;font-weight:600}
+    input[type=text], textarea{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px}
+    button{padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
+    .btn-primary{background:#0d9488;color:#fff}
+    .btn-ghost{background:#e6fffa;color:#064e3b}
+    .grid{display:flex;gap:8px}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
+    th{background:#0f766e;color:#fff}
+    select{padding:6px;border-radius:6px}
+    .small{font-size:0.9rem;color:#555}
+    .status-pending{background:#f59e0b;color:#fff;padding:4px 8px;border-radius:999px}
+    .status-synced{background:#10b981;color:#fff;padding:4px 8px;border-radius:999px}
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Absensi Siswa</h2>
-    <input type="text" id="nama" placeholder="Nama" required>
-    <select id="status">
-      <option value="Hadir">Hadir</option>
-      <option value="Izin">Izin</option>
-      <option value="Sakit">Sakit</option>
-      <option value="Alpa">Alpa</option>
-    </select>
-    <button onclick="kirimAbsensi()">Kirim</button>
-    <p id="pesan"></p>
+  <h1>📋 Absensi Siswa (Offline → Auto Sync)</h1>
+
+  <div class="card">
+    <label>Tambah siswa (satu-per-baris atau paste banyak nama)</label>
+    <textarea id="bulkNames" rows="3" placeholder="Contoh:
+Andi
+Budi
+Citra"></textarea>
+    <div style="margin-top:8px;display:flex;gap:8px">
+      <button id="addBulk" class="btn-primary">Tambah Banyak</button>
+      <input id="singleName" type="text" placeholder="Tambah nama tunggal..." />
+      <button id="addSingle" class="btn-ghost">Tambah</button>
+      <button id="clearList" style="margin-left:auto;background:#ef4444;color:#fff;border-radius:8px">Hapus Semua</button>
+    </div>
+    <p class="small">Daftar siswa tersimpan di perangkat (localStorage).</p>
   </div>
 
-  <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbz8bkHup-P53gtwzEzCTFexVfT60_SPOBpU9oOM1uVeIMz8aQ1o4GBubqPk3L985zIp/exec";
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div>
+        <label>Tanggal absensi</label>
+        <input id="absensiDate" type="date"/>
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <button id="submitAttend" class="btn-primary">Simpan Absensi (lokal / kirim jika online)</button>
+      </div>
+      <div style="margin-left:auto;text-align:right">
+        <div id="pendingCount" class="status-pending">Pending: 0</div>
+        <button id="syncNow" style="margin-top:8px;background:#06b6d4;color:#fff;border-radius:8px">Sync Now</button>
+      </div>
+    </div>
 
-    function kirimAbsensi() {
-      const nama = document.getElementById("nama").value;
-      const status = document.getElementById("status").value;
+    <table id="studentTable" aria-label="Daftar siswa">
+      <thead>
+        <tr><th>No</th><th>Nama</th><th>Status</th><th>Catatan</th><th>Aksi</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
-      if (!nama) {
-        alert("Nama wajib diisi!");
-        return;
-      }
+  <div class="card small">
+    <strong>Queue (offline)</strong><br/>
+    <div id="queueList">Tidak ada data pending.</div>
+  </div>
 
-      fetch(scriptURL, {
+<script>
+/* ====== Konfigurasi ====== */
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz8bkHup-P53gtwzEzCTFexVfT60_SPOBpU9oOM1uVeIMz8aQ1o4GBubqPk3L985zIp/exec"; // <--- Ganti dengan URL Web App Apps Script (lihat panduan)
+const SECRET_TOKEN = "doni"; // <--- opsional, jika pakai token untuk keamanan
+
+/* ====== Storage keys ====== */
+const STUDENT_KEY = "absensi_students_v1";
+const QUEUE_KEY = "absensi_queue_v1";
+
+/* ====== Init ====== */
+const bulkNames = document.getElementById("bulkNames");
+const addBulk = document.getElementById("addBulk");
+const addSingle = document.getElementById("addSingle");
+const singleName = document.getElementById("singleName");
+const clearList = document.getElementById("clearList");
+const tbody = document.querySelector("#studentTable tbody");
+const absensiDate = document.getElementById("absensiDate");
+const submitAttend = document.getElementById("submitAttend");
+const pendingCount = document.getElementById("pendingCount");
+const queueList = document.getElementById("queueList");
+const syncNow = document.getElementById("syncNow");
+
+/* set default date = today */
+absensiDate.value = new Date().toISOString().slice(0,10);
+
+/* load students from localStorage */
+function loadStudents(){
+  const s = JSON.parse(localStorage.getItem(STUDENT_KEY) || "[]");
+  return s;
+}
+function saveStudents(list){
+  localStorage.setItem(STUDENT_KEY, JSON.stringify(list));
+}
+
+/* render table */
+function renderStudents(){
+  const list = loadStudents();
+  tbody.innerHTML = "";
+  list.forEach((name, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td>${escapeHtml(name)}</td>
+      <td>
+        <select class="status-select">
+          <option value="Hadir">Hadir</option>
+          <option value="Izin">Izin</option>
+          <option value="Sakit">Sakit</option>
+          <option value="Alpa">Alpa</option>
+        </select>
+      </td>
+      <td><input class="note-input" placeholder="(opsional)"/></td>
+      <td><button class="remove-btn" data-index="${i}" style="background:#ef4444;color:#fff;border-radius:6px">Hapus</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // attach remove handlers
+  document.querySelectorAll(".remove-btn").forEach(btn=>{
+    btn.onclick = e=>{
+      const i = Number(btn.dataset.index);
+      const arr = loadStudents();
+      arr.splice(i,1);
+      saveStudents(arr);
+      renderStudents();
+    };
+  });
+}
+
+/* escape html */
+function escapeHtml(s){
+  return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+/* add bulk */
+addBulk.onclick = ()=>{
+  const text = bulkNames.value.trim();
+  if(!text) return alert("Masukkan minimal 1 nama (satu per baris).");
+  const lines = text.split(/\r?\n/).map(x=>x.trim()).filter(x=>x);
+  const existing = loadStudents();
+  const merged = existing.concat(lines);
+  saveStudents(merged);
+  bulkNames.value = "";
+  renderStudents();
+};
+
+/* add single */
+addSingle.onclick = ()=>{
+  const name = singleName.value.trim();
+  if(!name) return;
+  const arr = loadStudents();
+  arr.push(name);
+  saveStudents(arr);
+  singleName.value = "";
+  renderStudents();
+};
+
+/* clear list */
+clearList.onclick = ()=>{
+  if(!confirm("Hapus semua daftar siswa?")) return;
+  saveStudents([]);
+  renderStudents();
+};
+
+/* submit attendance: create entries and queue */
+submitAttend.onclick = ()=>{
+  const rows = Array.from(document.querySelectorAll("#studentTable tbody tr"));
+  if(rows.length === 0) return alert("Daftar siswa kosong.");
+  const date = absensiDate.value || new Date().toISOString().slice(0,10);
+  const entries = rows.map(r=>{
+    return {
+      name: r.children[1].textContent.trim(),
+      status: r.querySelector(".status-select").value,
+      note: r.querySelector(".note-input").value.trim() || ""
+    };
+  });
+
+  // queue item
+  const queue = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]");
+  queue.push({
+    id: "q_"+Date.now(),
+    date: date,
+    entries: entries,
+    createdAt: new Date().toISOString()
+  });
+  localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
+  updateQueueUI();
+  alert("Absensi tersimpan lokal. Akan dikirim otomatis saat online.");
+  trySync(); // coba langsung jika online
+};
+
+/* queue UI */
+function updateQueueUI(){
+  const queue = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]");
+  pendingCount.textContent = "Pending: " + queue.length;
+  if(queue.length === 0){
+    queueList.textContent = "Tidak ada data pending.";
+  } else {
+    queueList.innerHTML = queue.map(q=>`<div style="margin-bottom:6px;padding:6px;border:1px dashed #ddd;border-radius:6px">
+      <strong>${q.date}</strong> — ${q.entries.length} baris — <span class="small">${new Date(q.createdAt).toLocaleString()}</span>
+      <div style="margin-top:6px"><button data-id="${q.id}" class="btn-ghost" style="background:#fee2e2;color:#b91c1c;border-radius:6px">Hapus</button></div>
+    </div>`).join("");
+    // attach delete action
+    document.querySelectorAll("#queueList button").forEach(btn=>{
+      btn.onclick = ()=>{
+        const id = btn.dataset.id;
+        let q = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]");
+        q = q.filter(x=>x.id !== id);
+        localStorage.setItem(QUEUE_KEY, JSON.stringify(q));
+        updateQueueUI();
+      };
+    });
+  }
+}
+
+/* sync process */
+async function trySync(){
+  const queue = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]");
+  if(!navigator.onLine){
+    console.log("Offline — tidak mengirim.");
+    return;
+  }
+  if(queue.length === 0) return;
+
+  for(let i=0;i<queue.length;i++){
+    const item = queue[i];
+    try {
+      const payload = {
+        token: SECRET_TOKEN || "",
+        date: item.date,
+        entries: item.entries
+      };
+      const res = await fetch(WEB_APP_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nama: nama, status: status })
-      })
-      .then(response => response.json())
-      .then(data => {
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(payload),
+        mode: "cors"
+      });
+      // expect JSON {result:'success'}
+      const data = await res.json().catch(()=>null);
+      if(data && data.result === "success"){
+        // remove this item from queue
+        const qNow = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]");
+        const remain = qNow.filter(x=>x.id !== item.id);
+        localStorage.setItem(QUEUE_KEY, JSON.stringify(remain));
+        updateQueueUI();
+        console.log("Sync berhasil:", item.id);
+      } else {
+        console.warn("Respon WebApp tidak success, menghentikan sync.", data);
+        break;
+      }
+    } catch(err){
+      console.error("Gagal kirim ke server:", err);
+      break; // stop looping — coba nanti
+    }
+  }
+}
+
+/* manual sync */
+syncNow.onclick = () => trySync();
+
+/* auto sync on online event */
+window.addEventListener("online", ()=> {
+  console.log("Konektivitas kembali, mencoba mengirim queue...");
+  trySync();
+});
+
+/* init render */
+renderStudents();
+updateQueueUI();
+
+/* helper: load example if none */
+if(loadStudents().length === 0){
+  // contoh default (opsional) - kamu bisa hapus baris ini
+  const defaultNames = ["Andi","Budi","Citra","Dewi","Eka"];
+  saveStudents(defaultNames);
+  renderStudents();
+}
+</script>
+</body>
+</html>
