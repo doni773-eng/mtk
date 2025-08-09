@@ -1,48 +1,94 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Absensi Siswa</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daftar Dagangan</title>
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        margin: 0;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        color: #fff;
+    }
+
+    header {
+        text-align: center;
+        padding: 20px;
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+
+    .container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .card {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 15px;
+        text-align: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    .card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    .name {
+        margin: 10px 0 5px;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    .price {
+        color: #00ff88;
+        font-size: 1rem;
+        font-weight: bold;
+    }
+</style>
 </head>
 <body>
-  <h2>Form Absensi</h2>
-  <form id="absenForm">
-    <label>Nama:</label>
-    <input type="text" id="nama" required><br><br>
 
-    <label>Status:</label>
-    <select id="absensi" required>
-      <option value="Hadir">Hadir</option>
-      <option value="Izin">Izin</option>
-      <option value="Sakit">Sakit</option>
-      <option value="Alpa">Alpa</option>
-    </select><br><br>
+<header>🛒 Daftar Dagangan</header>
 
-    <button type="submit">Kirim</button>
-  </form>
+<div class="container" id="product-list">
+    <!-- Produk akan dimunculkan dari JavaScript -->
+</div>
 
-  <script>
-    document.getElementById("absenForm").addEventListener("submit", function(e) {
-      e.preventDefault();
+<script>
+    // Daftar produk (bisa ditambah atau diubah)
+    const products = [
+        { name: "Kopi Arabica", price: "Rp 25.000", image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500" },
+        { name: "Teh Hijau", price: "Rp 15.000", image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500" },
+        { name: "Roti Coklat", price: "Rp 10.000", image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500" },
+        { name: "Jus Jeruk", price: "Rp 12.000", image: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=500" }
+    ];
 
-      let nama = document.getElementById("nama").value;
-      let absensi = document.getElementById("absensi").value;
+    const container = document.getElementById("product-list");
 
-      fetch("https://script.google.com/macros/s/AKfycbxVV-BuX7Qbq8ly5lNuHckF49hyERxwtwo0djRIJFhiw2OlP66nR-jrwyuhTGwTeFQn/exec", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ nama: nama, absensi: absensi })
-      })
-      .then(res => res.text())
-      .then(data => {
-        alert("Data terkirim: " + nama + " - " + absensi);
-      })
-      .catch(err => {
-        alert("Gagal mengirim: " + err);
-      });
+    products.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+            <img src="${p.image}" alt="${p.name}">
+            <div class="name">${p.name}</div>
+            <div class="price">${p.price}</div>
+        `;
+        container.appendChild(card);
     });
-  </script>
+</script>
+
 </body>
 </html>
