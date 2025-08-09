@@ -1,125 +1,48 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Absensi Siswa</title>
-<style>
-    body {
-        font-family: 'Segoe UI', sans-serif;
-        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-        color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        margin: 0;
-    }
-    .container {
-        background: rgba(255, 255, 255, 0.08);
-        padding: 30px;
-        border-radius: 15px;
-        backdrop-filter: blur(10px);
-        width: 100%;
-        max-width: 400px;
-        box-shadow: 0 4px 30px rgba(0,0,0,0.3);
-        animation: fadeIn 1s ease-in-out;
-    }
-    h2 {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-    label {
-        display: block;
-        margin: 10px 0 5px;
-        font-weight: bold;
-    }
-    select, button {
-        width: 100%;
-        padding: 10px;
-        border-radius: 8px;
-        border: none;
-        margin-bottom: 15px;
-        font-size: 16px;
-    }
-    select {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-    }
-    option {
-        color: black;
-    }
-    button {
-        background: #00c6ff;
-        color: white;
-        cursor: pointer;
-        font-weight: bold;
-    }
-    button:hover {
-        background: #0072ff;
-    }
-    .message {
-        text-align: center;
-        margin-top: 10px;
-        font-weight: bold;
-    }
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-</style>
+  <meta charset="UTF-8">
+  <title>Absensi Siswa</title>
 </head>
 <body>
+  <h2>Form Absensi</h2>
+  <form id="absenForm">
+    <label>Nama:</label>
+    <input type="text" id="nama" required><br><br>
 
-<div class="container">
-    <h2>Absensi Siswa</h2>
-    <form id="absensiForm">
-        <label for="nama">Nama Siswa</label>
-        <select id="nama" name="nama" required>
-            <option value="">-- Pilih Nama --</option>
-            <option>Doni Stiawan</option>
-            <option>Budi Santoso</option>
-            <option>Siti Aminah</option>
-            <option>Rina Marlina</option>
-            <option>Ahmad Fauzi</option>
-        </select>
+    <label>Status:</label>
+    <select id="absensi" required>
+      <option value="Hadir">Hadir</option>
+      <option value="Izin">Izin</option>
+      <option value="Sakit">Sakit</option>
+      <option value="Alpa">Alpa</option>
+    </select><br><br>
 
-        <label for="status">Status Kehadiran</label>
-        <select id="status" name="status" required>
-            <option value="">-- Pilih Status --</option>
-            <option>Hadir</option>
-            <option>Sakit</option>
-            <option>Izin</option>
-            <option>Alfa</option>
-        </select>
+    <button type="submit">Kirim</button>
+  </form>
 
-        <button type="submit">Kirim Absensi</button>
-    </form>
-    <div class="message" id="message"></div>
-</div>
+  <script>
+    document.getElementById("absenForm").addEventListener("submit", function(e) {
+      e.preventDefault();
 
-<script>
-document.getElementById("absensiForm").addEventListener("submit", function(e) {
-    e.preventDefault();
+      let nama = document.getElementById("nama").value;
+      let absensi = document.getElementById("absensi").value;
 
-    const formData = new FormData(this);
-    const data = {};
-    formData.forEach((value, key) => { data[key] = value });
-
-    fetch("https://script.google.com/macros/s/AKfycbxVV-BuX7Qbq8ly5lNuHckF49hyERxwtwo0djRIJFhiw2OlP66nR-jrwyuhTGwTeFQn/exec", {
+      fetch("https://script.google.com/macros/s/AKfycbxVV-BuX7Qbq8ly5lNuHckF49hyERxwtwo0djRIJFhiw2OlP66nR-jrwyuhTGwTeFQn/exec", {
         method: "POST",
-        mode: "no-cors",
-        body: JSON.stringify(data)
-    })
-    .then(() => {
-        document.getElementById("message").textContent = "✅ Absensi berhasil dikirim!";
-        document.getElementById("absensiForm").reset();
-    })
-    .catch(() => {
-        document.getElementById("message").textContent = "❌ Gagal mengirim absensi.";
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ nama: nama, absensi: absensi })
+      })
+      .then(res => res.text())
+      .then(data => {
+        alert("Data terkirim: " + nama + " - " + absensi);
+      })
+      .catch(err => {
+        alert("Gagal mengirim: " + err);
+      });
     });
-});
-</script>
-
+  </script>
 </body>
 </html>
