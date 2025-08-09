@@ -5,83 +5,119 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Absensi Siswa</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #1a73e8, #00bcd4);
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-  .container {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.2);
-    width: 300px;
-    backdrop-filter: blur(10px);
-  }
-  h2 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  input, select, button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 8px;
-    border: none;
-    border-radius: 8px;
-  }
-  button {
-    background-color: #ff9800;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  button:hover {
-    background-color: #e68900;
-  }
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+    }
+    .container {
+        background: rgba(255, 255, 255, 0.08);
+        padding: 30px;
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+        animation: fadeIn 1s ease-in-out;
+    }
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    label {
+        display: block;
+        margin: 10px 0 5px;
+        font-weight: bold;
+    }
+    select, button {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+        margin-bottom: 15px;
+        font-size: 16px;
+    }
+    select {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+    option {
+        color: black;
+    }
+    button {
+        background: #00c6ff;
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    button:hover {
+        background: #0072ff;
+    }
+    .message {
+        text-align: center;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <h2>Absensi Siswa</h2>
-  <form id="absensiForm">
-    <input type="text" id="nama" placeholder="Nama Siswa" required>
-    <input type="text" id="kelas" placeholder="Kelas" required>
-    <select id="keterangan" required>
-      <option value="">-- Pilih Keterangan --</option>
-      <option value="Hadir">Hadir</option>
-      <option value="Sakit">Sakit</option>
-      <option value="Izin">Izin</option>
-      <option value="Alpha">Alpha</option>
-    </select>
-    <button type="submit">Kirim</button>
-  </form>
-  <p id="status"></p>
+    <h2>Absensi Siswa</h2>
+    <form id="absensiForm">
+        <label for="nama">Nama Siswa</label>
+        <select id="nama" name="nama" required>
+            <option value="">-- Pilih Nama --</option>
+            <option>Doni Stiawan</option>
+            <option>Budi Santoso</option>
+            <option>Siti Aminah</option>
+            <option>Rina Marlina</option>
+            <option>Ahmad Fauzi</option>
+        </select>
+
+        <label for="status">Status Kehadiran</label>
+        <select id="status" name="status" required>
+            <option value="">-- Pilih Status --</option>
+            <option>Hadir</option>
+            <option>Sakit</option>
+            <option>Izin</option>
+            <option>Alfa</option>
+        </select>
+
+        <button type="submit">Kirim Absensi</button>
+    </form>
+    <div class="message" id="message"></div>
 </div>
 
 <script>
 document.getElementById("absensiForm").addEventListener("submit", function(e) {
-  e.preventDefault();
+    e.preventDefault();
 
-  let data = {
-    nama: document.getElementById("nama").value,
-    kelas: document.getElementById("kelas").value,
-    keterangan: document.getElementById("keterangan").value
-  };
+    const formData = new FormData(this);
+    const data = {};
+    formData.forEach((value, key) => { data[key] = value });
 
-  fetch("https://script.google.com/macros/s/AKfycbxVV-BuX7Qbq8ly5lNuHckF49hyERxwtwo0djRIJFhiw2OlP66nR-jrwyuhTGwTeFQn/exec", {
-    method: "POST",
-    mode: "no-cors", // Agar tidak error CORS
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  });
-
-  document.getElementById("status").innerText = "✅ Absensi berhasil dikirim!";
-  document.getElementById("absensiForm").reset();
+    fetch("https://script.google.com/macros/s/AKfycbxVV-BuX7Qbq8ly5lNuHckF49hyERxwtwo0djRIJFhiw2OlP66nR-jrwyuhTGwTeFQn/exec", {
+        method: "POST",
+        mode: "no-cors",
+        body: JSON.stringify(data)
+    })
+    .then(() => {
+        document.getElementById("message").textContent = "✅ Absensi berhasil dikirim!";
+        document.getElementById("absensiForm").reset();
+    })
+    .catch(() => {
+        document.getElementById("message").textContent = "❌ Gagal mengirim absensi.";
+    });
 });
 </script>
 
