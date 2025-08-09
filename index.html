@@ -1,61 +1,34 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Absensi Siswa</title>
-</head>
-<body>
-  <h2>Absensi Siswa</h2>
-  <textarea id="namaSiswa" placeholder="Masukkan nama siswa, pisahkan dengan koma"></textarea>
+<form id="absensiForm">
+  <input type="text" id="nama" placeholder="Nama siswa" required>
   <select id="status">
     <option value="Hadir">Hadir</option>
     <option value="Sakit">Sakit</option>
     <option value="Izin">Izin</option>
     <option value="Alpa">Alpa</option>
   </select>
-  <button onclick="simpanAbsensi()">Simpan</button>
+  <button type="submit">Kirim</button>
+</form>
 
-  <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyKLcxmidhc6ngVolVkeblEUCoAXnWX2c9gWNhOgYJz--jFLCK5z1ixXyHOTkbCiF_y/exec;
+<script>
+document.getElementById("absensiForm").addEventListener("submit", function(e) {
+    e.preventDefault();
 
-    function simpanAbsensi() {
-      const namaInput = document.getElementById("namaSiswa").value;
-      const status = document.getElementById("status").value;
-      const namaArray = namaInput.split(",").map(n => n.trim()).filter(n => n);
+    let nama = document.getElementById("nama").value;
+    let status = document.getElementById("status").value;
 
-      // Simpan ke localStorage
-      let absensi = JSON.parse(localStorage.getItem("absensi")) || [];
-      namaArray.forEach(nama => absensi.push({nama, status}));
-      localStorage.setItem("absensi", JSON.stringify(absensi));
+    fetch("PASTE_URL_WEB_APP_DI_SINI", {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nama: nama, status: status })
+    })
+    .then(() => {
+        alert("Absensi berhasil dikirim!");
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Gagal mengirim absensi.");
+    });
+});
+</script>
 
-      alert("Data disimpan. Akan dikirim saat online.");
-      kirimJikaOnline();
-    }
-
-    function kirimJikaOnline() {
-      if (navigator.onLine) {
-        let absensi = JSON.parse(localStorage.getItem("absensi")) || [];
-        if (absensi.length > 0) {
-          fetch(WEB_APP_URL, {
-            method: "POST",
-            body: JSON.stringify(absensi),
-            headers: { "Content-Type": "application/json" }
-          })
-          .then(res => res.json())
-          .then(res => {
-            if (res.status === "success") {
-              alert("Data terkirim ke Spreadsheet!");
-              localStorage.removeItem("absensi");
-            } else {
-              console.error(res.message);
-            }
-          })
-          .catch(err => console.error("Gagal kirim:", err));
-        }
-      }
-    }
-
-    window.addEventListener("online", kirimJikaOnline);
-  </script>
-</body>
-</html>
