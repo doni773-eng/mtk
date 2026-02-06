@@ -1,88 +1,495 @@
-<!DOCTYPE html><html lang="id">
+<!DOCTYPE html>
+<html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DaganganKeren</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-    body { 
-      font-family: Arial, sans-serif; 
-      margin:0; padding:0; 
-      background: url('https://source.unsplash.com/1600x900/?shopping,market&v=2') no-repeat center center fixed; 
-      background-size: cover; 
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regresi Linier</title>
+
+<!-- Google Font imut -->
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:'Quicksand',sans-serif;
+    background:
+        radial-gradient(circle at top left,#ff9acb,#ff5fa2,#ff2f92);
+    color:#333;
+}
+
+/* background futuristik */
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:
+        repeating-linear-gradient(
+            45deg,
+            rgba(255,255,255,.06) 0,
+            rgba(255,255,255,.06) 2px,
+            transparent 2px,
+            transparent 10px
+        );
+    pointer-events:none;
+}
+
+.overlay{
+    min-height:100vh;
+    padding:20px;
+    background:rgba(255,255,255,.92);
+    backdrop-filter:blur(8px);
+    border-radius:22px;
+    max-width:1100px;
+    margin:20px auto;
+    box-shadow:0 20px 45px rgba(0,0,0,.25);
+}
+
+/* judul lucu */
+h2{
+    text-align:center;
+    color:#ff2f92;
+    margin-bottom:5px;
+}
+.subjudul{
+    text-align:center;
+    font-weight:600;
+    margin-bottom:25px;
+    font-size: 1.9em; /* Ditambahkan: Ukuran font lebih besar */
+    font-weight: bold; /* Ditambahkan: Lebih tebal untuk tampilan besar */
+}
+.subjudul::after{
+    content:" 📈";
+}
+
+label{
+    font-weight:600;
+}
+
+input{
+    width:18%;
+    padding:10px;
+    border-radius:12px;
+    border:1px solid #ccc;
+    font-family:'Quicksand',sans-serif;
+}
+
+button{
+    background:#ff5fa2;
+    color:white;
+    border:none;
+    padding:12px 18px;
+    border-radius:14px;
+    cursor:pointer;
+    font-weight:700;
+    box-shadow:0 6px 15px rgba(255,95,162,.5);
+    transition: background 0.3s;
+}
+button:hover{
+    background:#ff2f92;
+}
+
+/* tabel */
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+    background:white;
+    border-radius:14px;
+    overflow:hidden;
+    font-size: 0.9em; /* Ukuran font lebih kecil untuk mobile */
+}
+th,td{
+    padding:8px;
+    border:1px solid #ddd;
+    text-align:center;
+}
+th{
+    background:#ffe0ef;
+}
+
+/* kartu section */
+.section{
+    margin-top:25px;
+    padding:18px;
+    background:#fff;
+    border-radius:18px;
+    box-shadow:0 8px 20px rgba(0,0,0,.12);
+}
+
+/* grafik */
+#grafik-container{
+    width:100%;
+    padding:12px;
+    background:black;
+    border-radius:18px;
+    box-shadow:0 10px 25px rgba(0,0,0,.25);
+    transform-origin:top left;
+    overflow: hidden; /* Mencegah overflow pada mobile */
+}
+
+/* imut */
+.emoji{
+    font-size:1.2em;
+}
+
+/* mobile responsiveness */
+@media(max-width:768px){
+    .overlay{
+        margin:10px;
+        padding:15px;
     }
-    header { background:rgba(255,255,255,0.9); padding:10px 20px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 4px rgba(0,0,0,0.1); position:sticky; top:0; }
-    header h1 { margin:0; font-size:20px; color:#333; }
-    nav a { margin:0 10px; text-decoration:none; color:#333; }
-    .hero { display:flex; flex-wrap:wrap; padding:20px; background:rgba(255,255,255,0.9); margin:20px auto; max-width:1200px; border-radius:10px; }
-    .hero img { width:100%; max-width:500px; border-radius:10px; }
-    .hero-text { flex:1; padding:20px; }
-    .hero-text h2 { font-size:28px; margin-bottom:10px; }
-    .products { max-width:1200px; margin:20px auto; display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:20px; }
-    .product { background:rgba(255,255,255,0.95); border-radius:10px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.1); display:flex; flex-direction:column; backdrop-filter: blur(5px); }
-    .product img { width:100%; height:200px; object-fit:cover; }
-    .product-info { padding:15px; flex:1; }
-    .product-info h3 { margin:0; font-size:18px; }
-    .product-info p { font-size:14px; color:#666; margin:10px 0; }
-    .product-info .price { font-weight:bold; margin-bottom:10px; }
-    .product-info button { padding:10px; background:#fbbf24; border:none; cursor:pointer; border-radius:5px; font-weight:bold; }
-    footer { background:rgba(255,255,255,0.9); padding:20px; text-align:center; font-size:14px; color:#777; margin-top:40px; border-top:1px solid #ddd; }
-  </style>
+    h2{
+        font-size:1.4em;
+    }
+    .subjudul{
+        font-size:1.5em;
+    }
+    input{
+        width:45%; /* Lebar input lebih besar di mobile */
+        margin-bottom:10px;
+        font-size:16px; /* Mencegah zoom pada iOS */
+    }
+    button{
+        width:100%;
+        padding:15px;
+        font-size:1.1em;
+    }
+    table{
+        font-size:0.8em; /* Lebih kecil untuk layar kecil */
+        overflow-x: auto; /* Scroll horizontal jika tabel terlalu lebar */
+        display: block;
+        white-space: nowrap;
+    }
+    .section{
+        padding:15px;
+    }
+    #grafik-container{
+        padding:8px;
+    }
+    /* Tumpuk input secara vertikal di mobile */
+    .section input[type="number"]{
+        display: block;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    .section button{
+        margin-top: 10px;
+    }
+    /* Zoom slider dan checkbox */
+    input[type="range"]{
+        width: 100%;
+    }
+    label[for="showRegression"]{
+        display: block;
+        margin-top: 10px;
+    }
+}
+
+@media(max-width:480px){
+    h2{
+        font-size:1.2em;
+    }
+    .subjudul{
+        font-size:1.3em;
+    }
+    table{
+        font-size:0.7em;
+    }
+    .section{
+        padding:10px;
+    }
+    button{
+        padding:12px;
+        font-size:1em;
+    }
+}
+</style>
 </head>
+
 <body>
-  <header>
-    <h1>DaganganKeren</h1>
-    <nav>
-      <a href="#">Beranda</a>
-      <a href="#produk">Produk</a>
-      <a href="#kontak">Kontak</a>
-    </nav>
-  </header>  <section class="hero">
-    <div class="hero-text">
-      <h2>Furniture Mewah, Harga Terjangkau</h2>
-      <p>Koleksi premium untuk kenyamanan dan estetika rumah Anda.</p>
-      <button style="padding:10px 20px; background:#2563eb; color:white; border:none; border-radius:5px; cursor:pointer;">Belanja Sekarang</button>
-    </div>
-    <img src="https://source.unsplash.com/600x400/?interior,living-room" alt="Hero" />
-  </section>  <section id="produk" class="products">
-    <div class="product">
-      <img src="https://source.unsplash.com/400x300/?sofa" alt="Sofa Santai" />
-      <div class="product-info">
-        <h3>Sofa Santai Lux</h3>
-        <p>Sofa empuk bahan premium, cocok untuk ruang tamu modern.</p>
-        <div class="price">Rp 2.499.000</div>
-        <button>Beli</button>
-      </div>
-    </div>
-    <div class="product">
-      <img src="https://source.unsplash.com/400x300/?wooden-table" alt="Meja Kayu" />
-      <div class="product-info">
-        <h3>Meja Kayu Minimalis</h3>
-        <p>Meja solid wood, finishing halus.</p>
-        <div class="price">Rp 799.000</div>
-        <button>Beli</button>
-      </div>
-    </div>
-    <div class="product">
-      <img src="https://source.unsplash.com/400x300/?lamp" alt="Lampu Gantung" />
-      <div class="product-info">
-        <h3>Lampu Gantung Elegan</h3>
-        <p>Desain modern, pencahayaan lembut.</p>
-        <div class="price">Rp 349.000</div>
-        <button>Beli</button>
-      </div>
-    </div>
-    <div class="product">
-      <img src="https://source.unsplash.com/400x300/?carpet" alt="Karpet Persia" />
-      <div class="product-info">
-        <h3>Karpet Persia Mini</h3>
-        <p>Karpet lembut, motif klasik.</p>
-        <div class="price">Rp 199.000</div>
-        <button>Beli</button>
-      </div>
-    </div>
-  </section>  <footer>
-    © 2025 DaganganKeren. Semua hak cipta dilindungi.
-  </footer>
+<div class="overlay">
+
+<h2>Perhitungan Regresi Linier</h2>
+<div class="subjudul">DONI STIAWAN, S.MAT</div>  <!-- Diubah: Nama menjadi huruf besar -->
+
+<div class="section">
+<h3>📊 Tambah Poin Data</h3>
+<input type="number" id="xPoin" placeholder="Masukkan nilai x">
+<input type="number" id="yPoin" placeholder="Masukkan y">
+<br><br>
+<button onclick="tambahPoin()">➕ Tambah Poin</button>
+<div id="tabelPoin"></div>  <!-- Tabel poin data -->
+<br>
+<button onclick="hitung()">✨ Hitung Regresi ✨</button>
+</div>
+
+<div class="section">
+<h3>📊 Tabel Perhitungan</h3>
+<div id="tabel"></div>
+</div>
+
+<div class="section">
+<h3>💡 Hasil Regresi</h3>
+<p id="hasil"></p>
+</div>
+
+<div class="section">
+<h3>📈 Tabel Nilai Regresi</h3>
+<div id="tabelRegresi"></div>
+</div>
+
+<div class="section">
+<h3>🔮 Ekstrapolasi</h3>
+<input type="number" id="xEkstra" placeholder="Masukkan x">
+<br><br>
+<button onclick="tambahEkstra()">➕ Tambah Ekstrapolasi</button>
+<div id="tabelEkstra"></div>  <!-- Tabel akan muncul di sini -->
+</div>
+
+<div class="section">
+<label>🔍 Zoom Grafik:</label>
+<input type="range" min="50" max="150" value="100" id="zoomSlider">
+<span id="zoomValue">100%</span>
+
+<br><br>
+
+<!-- Checkbox untuk toggle garis regresi -->
+<input type="checkbox" id="showRegression" checked>
+<label for="showRegression">Munculkan Garis Regresi</label>
+
+<br><br>
+
+<div id="grafik-container">
+<canvas id="grafik" height="320"></canvas>
+</div>
+</div>
+
+</div>
+
+<script>
+let chart, a, b;
+let dataX = [], dataY = [];  // Array global untuk data X dan Y
+let ekstrapolasiData = [];  // Array untuk ekstrapolasi
+
+function hitung(){
+    if(dataX.length < 2 || dataY.length < 2 || dataX.length !== dataY.length){
+        alert("Tambahkan minimal 2 poin data ya! 💕");
+        return;
+    }
+
+    let x = [...dataX];
+    let y = [...dataY];
+    let n = x.length;
+
+    let sumX = 0, sumY = 0, sumX2 = 0, sumXY = 0;
+    let tabel = `
+    <table>
+    <tr>
+        <th>No</th><th>x</th><th>y</th><th>x²</th><th>xy</th>
+    </tr>`;
+
+    for(let i = 0; i < n; i++){
+        let x2 = x[i] * x[i];
+        let xy = x[i] * y[i];
+        sumX += x[i]; sumY += y[i];
+        sumX2 += x2; sumXY += xy;
+
+        tabel += `
+        <tr>
+            <td>${i+1}</td>
+            <td>${x[i]}</td>
+            <td>${y[i]}</td>
+            <td>${x2}</td>
+            <td>${xy}</td>
+        </tr>`;
+    }
+
+    tabel += `
+    <tr>
+        <th>Σ</th>
+        <th>${sumX}</th>
+        <th>${sumY}</th>
+        <th>${sumX2}</th>
+        <th>${sumXY}</th>
+    </tr>
+    </table>`;
+
+    document.getElementById("tabel").innerHTML = tabel;
+
+    b = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    a = (sumY - b * sumX) / n;
+
+    document.getElementById("hasil").innerHTML =
+        `✨ <b>y = ${a.toFixed(3)} + ${b.toFixed(3)}x</b> ✨`;
+
+    let tabelR = `<table><tr><th>x</th><th>y hasil regresi</th></tr>`;
+    let titikRegresi = [];
+
+    for(let i = 0; i < n; i++){
+        let yr = a + b * x[i];
+        tabelR += `<tr><td>${x[i]}</td><td>${yr.toFixed(3)}</td></tr>`;
+        titikRegresi.push({x: x[i], y: yr});
+    }
+    tabelR += `</table>`;
+    document.getElementById("tabelRegresi").innerHTML = tabelR;
+
+    let scatterData = x.map((v, i) => ({x: v, y: y[i]}));
+
+    // Gabungkan semua x untuk garis regresi yang tersambung
+    let allX = [...x, ...ekstrapolasiData.map(p => p.x)];
+    let minX = Math.min(...allX);
+    let maxX = Math.max(...allX);
+
+    // Ambil status checkbox
+    let showReg = document.getElementById("showRegression").checked;
+
+    if(chart) chart.destroy();
+    chart = new Chart(document.getElementById("grafik"), {
+        type: "scatter",
+        data: {
+            datasets: [
+                {
+                    label: "Data Asli 💙",
+                    data: scatterData,
+                    backgroundColor: "#3b82f6",
+                    pointRadius: 6
+                },
+                {
+                    label: "Titik Regresi 💚",
+                    data: titikRegresi,
+                    backgroundColor: "#22c55e",
+                    pointRadius: 6
+                },
+                {
+                    label: "Ekstrapolasi 💛",
+                    data: ekstrapolasiData,
+                    backgroundColor: "#FFFF00",
+                    pointRadius: 6
+                },
+                // Dataset garis regresi hanya ditampilkan jika checkbox checked
+                ...(showReg ? [{
+                    label: "Garis Regresi 🤍",
+                    type: "line",
+                    data: [
+                        {x: minX, y: a + b * minX},
+                        {x: maxX, y: a + b * maxX}
+                    ],
+                    borderColor: "#FFFFFF",
+                    backgroundColor: "#FFFFFF",
+                    borderWidth: 2,
+                    pointRadius: 0
+                }] : [])
+            ]
+        },
+        options: {
+            responsive: true, // Membuat grafik responsif
+            maintainAspectRatio: false, // Agar grafik menyesuaikan container
+            scales: {
+                x: {
+                    grid: {
+                        color: 'white'
+                    }
+                },
+                y: {
+                    grid: {
+                        color: 'white'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function tambahPoin(){
+    let x = Number(document.getElementById("xPoin").value);
+    let y = Number(document.getElementById("yPoin").value);
+    if(isNaN(x) || isNaN(y)){
+        alert("Masukkan nilai x dan y yang valid! 🌸");
+        return;
+    }
+    dataX.push(x);
+    dataY.push(y);
+    updateTabelPoin();
+    document.getElementById("xPoin").value = "";
+    document.getElementById("yPoin").value = "";
+}
+
+function hapusPoin(index){
+    dataX.splice(index, 1);
+    dataY.splice(index, 1);
+    updateTabelPoin();
+}
+
+function updateTabelPoin(){
+    let tabel = `<table><tr><th>No</th><th>x</th><th>y</th><th>Aksi</th></tr>`;
+    dataX.forEach((x, index) => {
+        tabel += `<tr>
+            <td>${index + 1}</td>
+            <td>${x}</td>
+            <td>${dataY[index]}</td>
+            <td><button onclick="hapusPoin(${index})" style="background:#ff2f92; color:white; border:none; padding:5px 10px; border-radius:5px;">Hapus</button></td>
+        </tr>`;
+    });
+    tabel += `</table>`;
+    document.getElementById("tabelPoin").innerHTML = tabel;
+}
+
+function tambahEkstra(){
+    if(!a || !b){
+        alert("Hitung regresi dulu ya! 💕");
+        return;
+    }
+    let x = Number(document.getElementById("xEkstra").value);
+    if(isNaN(x)){
+        alert("Masukkan nilai x yang valid! 🌸");
+        return;
+    }
+    let y = a + b * x;
+    ekstrapolasiData.push({x: x, y: y});
+    updateTabelEkstra();
+    hitung();  // Update grafik dengan garis regresi yang tersambung
+    document.getElementById("xEkstra").value = "";
+}
+
+function hapusEkstra(index){
+    ekstrapolasiData.splice(index, 1);
+    updateTabelEkstra();
+    hitung();  // Update grafik setelah hapus
+}
+
+function updateTabelEkstra(){
+    let tabel = `<table><tr><th>No</th><th>x</th><th>y hasil ekstrapolasi</th><th>Aksi</th></tr>`;
+    ekstrapolasiData.forEach((point, index) => {
+        tabel += `<tr>
+            <td>${index + 1}</td>
+            <td>${point.x}</td>
+            <td>${point.y.toFixed(3)}</td>
+            <td><button onclick="hapusEkstra(${index})" style="background:#ff2f92; color:white; border:none; padding:5px 10px; border-radius:5px;">Hapus</button></td>
+        </tr>`;
+    });
+    tabel += `</table>`;
+    document.getElementById("tabelEkstra").innerHTML = tabel;
+}
+
+const slider = document.getElementById("zoomSlider");
+const container = document.getElementById("grafik-container");
+const zoomValue = document.getElementById("zoomValue");
+
+slider.oninput = () => {
+    let s = slider.value / 100;
+    container.style.transform = `scale(${s})`;
+    zoomValue.innerText = slider.value + "%";
+};
+
+// Event listener untuk checkbox agar grafik update saat dicentang/centang
+document.getElementById("showRegression").addEventListener("change", hitung);
+</script>
+
 </body>
-    </html>
+</html>
