@@ -94,7 +94,7 @@ button:hover{
     background:#ff2f92;
 }
 
-/* tabel - diperbesar ukuran font untuk angka */
+/* tabel - diperbesar ukuran font dan padding untuk ukuran tabel dan angka lebih besar */
 table{
     width:100%;
     border-collapse:collapse;
@@ -102,16 +102,16 @@ table{
     background:white;
     border-radius:14px;
     overflow:hidden;
-    font-size: 1.2em; /* Diperbesar dari 0.9em untuk ukuran angka lebih besar */
+    font-size: 1.5em; /* Diperbesar lebih lanjut dari 1.2em untuk angka lebih besar */
 }
 th,td{
-    padding:10px; /* Sedikit diperbesar padding untuk kenyamanan */
+    padding:15px; /* Diperbesar dari 10px untuk ukuran tabel lebih besar */
     border:1px solid #ddd;
     text-align:center;
 }
 th{
     background:#ffe0ef;
-    font-size: 1.1em; /* Header sedikit lebih besar */
+    font-size: 1.2em; /* Header sedikit lebih besar dari tabel */
 }
 
 /* kartu section */
@@ -139,7 +139,7 @@ th{
     font-size:1.2em;
 }
 
-/* mobile responsiveness */
+/* mobile responsiveness - diperbesar lebih untuk versi mobile */
 @media(max-width:768px){
     .overlay{
         margin:10px;
@@ -152,31 +152,32 @@ th{
         font-size:1.5em;
     }
     input{
-        width:45%; /* Lebar input lebih besar di mobile */
+        width:100%; /* Lebar input penuh di mobile untuk kemudahan */
         margin-bottom:10px;
-        font-size:16px; /* Mencegah zoom pada iOS */
+        font-size:18px; /* Diperbesar dari 16px untuk input lebih besar di mobile */
+        display: block; /* Pastikan vertikal */
     }
     button{
         width:100%;
-        padding:15px;
-        font-size:1.1em;
+        padding:18px; /* Diperbesar padding untuk tombol lebih besar */
+        font-size:1.2em; /* Diperbesar font tombol */
     }
     table{
-        font-size:1.1em; /* Diperbesar dari 0.8em untuk mobile, tetap lebih besar */
+        font-size:1.8em; /* Diperbesar lebih dari 1.3em untuk angka lebih besar di mobile */
         overflow-x: auto; /* Scroll horizontal jika tabel terlalu lebar */
         display: block;
         white-space: nowrap;
     }
     th,td{
-        padding:8px; /* Padding sedikit dikurangi di mobile untuk efisiensi */
+        padding:18px; /* Diperbesar dari 12px untuk sel tabel lebih besar di mobile */
     }
     .section{
-        padding:15px;
+        padding:20px; /* Diperbesar padding section untuk ruang lebih */
     }
     #grafik-container{
-        padding:8px;
+        padding:10px;
     }
-    /* Tumpuk input secara vertikal di mobile */
+    /* Tumpuk input secara vertikal di mobile - sudah ada */
     .section input[type="number"]{
         display: block;
         width: 100%;
@@ -188,10 +189,12 @@ th{
     /* Zoom slider dan checkbox */
     input[type="range"]{
         width: 100%;
+        height: 10px; /* Diperbesar tinggi slider untuk touch lebih mudah */
     }
     label[for="showRegression"]{
         display: block;
         margin-top: 10px;
+        font-size: 1.1em; /* Diperbesar font label */
     }
 }
 
@@ -203,14 +206,21 @@ th{
         font-size:1.3em;
     }
     table{
-        font-size:1em; /* Diperbesar dari 0.7em untuk layar sangat kecil, tetap terbaca */
+        font-size:1.6em; /* Diperbesar dari 1.2em untuk layar sangat kecil, tetap terbaca dan lebih besar */
+    }
+    th,td{
+        padding:15px; /* Diperbesar dari 10px untuk sel lebih besar */
     }
     .section{
-        padding:10px;
+        padding:15px;
     }
     button{
-        padding:12px;
-        font-size:1em;
+        padding:15px; /* Diperbesar padding tombol */
+        font-size:1.1em;
+    }
+    input{
+        font-size:16px; /* Tetap 16px untuk mencegah zoom, tapi padding lebih besar */
+        padding:12px; /* Diperbesar padding input */
     }
 }
 </style>
