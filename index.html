@@ -94,7 +94,7 @@ button:hover{
     background:#ff2f92;
 }
 
-/* tabel */
+/* tabel - diperbesar ukuran font untuk angka */
 table{
     width:100%;
     border-collapse:collapse;
@@ -102,15 +102,16 @@ table{
     background:white;
     border-radius:14px;
     overflow:hidden;
-    font-size: 0.9em; /* Ukuran font lebih kecil untuk mobile */
+    font-size: 1.2em; /* Diperbesar dari 0.9em untuk ukuran angka lebih besar */
 }
 th,td{
-    padding:8px;
+    padding:10px; /* Sedikit diperbesar padding untuk kenyamanan */
     border:1px solid #ddd;
     text-align:center;
 }
 th{
     background:#ffe0ef;
+    font-size: 1.1em; /* Header sedikit lebih besar */
 }
 
 /* kartu section */
@@ -161,10 +162,13 @@ th{
         font-size:1.1em;
     }
     table{
-        font-size:0.8em; /* Lebih kecil untuk layar kecil */
+        font-size:1.1em; /* Diperbesar dari 0.8em untuk mobile, tetap lebih besar */
         overflow-x: auto; /* Scroll horizontal jika tabel terlalu lebar */
         display: block;
         white-space: nowrap;
+    }
+    th,td{
+        padding:8px; /* Padding sedikit dikurangi di mobile untuk efisiensi */
     }
     .section{
         padding:15px;
@@ -199,7 +203,7 @@ th{
         font-size:1.3em;
     }
     table{
-        font-size:0.7em;
+        font-size:1em; /* Diperbesar dari 0.7em untuk layar sangat kecil, tetap terbaca */
     }
     .section{
         padding:10px;
