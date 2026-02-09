@@ -165,16 +165,37 @@ function redrawNP(){
 }
 
 /* ===== REDRAW OP ===== */
+/* ===== REDRAW OP (ARAH PANAH HEAD-TO-TAIL) ===== */
 function redrawOP(){
     drawGrid(OP.ctx,OP.ox,OP.oy,OP.scale);
     if(!dataOP) return;
+
     let {a,b,t}=dataOP;
-    let dx=t==="+"?a.x+b.x:a.x-b.x;
-    let dy=t==="+"?a.y+b.y:a.y-b.y;
-    drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,0,0,a.x,a.y,"blue","a");
-    drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,0,0,b.x,b.y,"green","b");
-    drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,0,0,dx,dy,"red","hasil");
+    let dx = (t==="+" ? a.x + b.x : a.x - b.x);
+    let dy = (t==="+" ? a.y + b.y : a.y - b.y);
+
+    // a dari (0,0)
+    drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,
+        0,0,
+        a.x,a.y,
+        "blue","a"
+    );
+
+    // b / -b DITEMPEL di ujung a
+    drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,
+        a.x,a.y,
+        dx,dy,
+        "green", t==="+" ? "b" : "-b"
+    );
+
+    // hasil dari (0,0)
+    drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,
+        0,0,
+        dx,dy,
+        "red","hasil"
+    );
 }
+
 
 /* ===== NP Function ===== */
 function nonPosisi(){
