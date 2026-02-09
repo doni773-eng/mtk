@@ -18,7 +18,15 @@ padding:8px 14px;border:none;border-radius:6px;
 background:#007bff;color:#fff;margin:3px
 }
 .result{margin-top:10px;background:#eef;padding:10px;border-radius:6px;word-wrap:break-word;}
-canvas{border:1px solid #ccc;background:#fff;width:100%;max-width:100%;}
+canvas{
+  border:1px solid #ccc;
+  background:#fff;
+  width:90%;
+  max-width:450px;
+  height:auto;
+  display:block;
+  margin:10px auto;
+}
 .controls{text-align:center;margin-top:8px}
 
 .vektor{
@@ -164,38 +172,56 @@ function kurang(){
     redraw();
 }
 
-/* ===== SETUP KANVAS MOBILE-FRIENDLY ===== */
+/* ===== SETUP KANVAS MOBILE + PINCH ZOOM ===== */
 function setup(c){
-    let o={c,ctx:c.getContext("2d"),scale:30,ox:c.width/2,oy:c.height/2,drag:false,x:0,y:0};
+    let o={c,ctx:c.getContext("2d"),scale:30,ox:c.width/2,oy:c.height/2,drag:false,x:0,y:0,pinch:false,dist0:0,scale0:30};
 
     // Mouse events
     c.onmousedown=e=>{o.drag=true;o.x=e.offsetX;o.y=e.offsetY;};
     c.onmouseup=()=>o.drag=false;
     c.onmouseleave=()=>o.drag=false;
     c.onmousemove=e=>{
-        if(!o.drag) return;
+        if(!o.drag || o.pinch) return;
         o.ox += e.offsetX-o.x;
         o.oy += e.offsetY-o.y;
         o.x=e.offsetX;o.y=e.offsetY;
         redraw();
     };
 
-    // Touch events untuk HP
+    // Touch events
     c.ontouchstart=e=>{
         e.preventDefault();
         if(e.touches.length==1){
             let t = e.touches[0];
             let rect = c.getBoundingClientRect();
-            o.drag=true;
+            o.drag=true; o.pinch=false;
             o.x = t.clientX - rect.left;
             o.y = t.clientY - rect.top;
+        } else if(e.touches.length==2){
+            let t1=e.touches[0], t2=e.touches[1];
+            let dx = t2.clientX - t1.clientX;
+            let dy = t2.clientY - t1.clientY;
+            o.dist0 = Math.sqrt(dx*dx + dy*dy);
+            o.scale0 = o.scale;
+            o.pinch=true; o.drag=false;
         }
     };
+
     c.ontouchmove=e=>{
         e.preventDefault();
-        if(o.drag && e.touches.length==1){
+        let rect=c.getBoundingClientRect();
+        if(o.pinch && e.touches.length==2){
+            let t1=e.touches[0], t2=e.touches[1];
+            let dx = t2.clientX - t1.clientX;
+            let dy = t2.clientY - t1.clientY;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            let ratio = dist/o.dist0;
+            o.scale = o.scale0*ratio;
+            if(o.scale<5) o.scale=5;
+            if(o.scale>150) o.scale=150;
+            redraw();
+        } else if(o.drag && e.touches.length==1){
             let t = e.touches[0];
-            let rect = c.getBoundingClientRect();
             let x2 = t.clientX - rect.left;
             let y2 = t.clientY - rect.top;
             o.ox += x2 - o.x;
@@ -204,12 +230,14 @@ function setup(c){
             redraw();
         }
     };
-    c.ontouchend=()=>{o.drag=false;};
-    c.ontouchcancel=()=>{o.drag=false;};
+
+    c.ontouchend=()=>{o.drag=false;o.pinch=false;};
+    c.ontouchcancel=()=>{o.drag=false;o.pinch=false;};
 
     return o;
 }
 
+/* ===== INISIALISASI ===== */
 let NP=setup(kanvasNP);
 let OP=setup(kanvasOP);
 let dataNP=null,dataOP=null;
@@ -218,15 +246,17 @@ let dataNP=null,dataOP=null;
 function resizeCanvas(){
     let canvases = [kanvasNP, kanvasOP];
     canvases.forEach(c=>{
-        c.width = c.parentElement.clientWidth;
-        c.height = c.parentElement.clientWidth; // kotak proporsional
+        let parentWidth = c.parentElement.clientWidth;
+        let w = Math.min(parentWidth*0.9, 450); // 90% layar atau max 450px
+        c.width = w;
+        c.height = w; // kotak agar vektor proporsional
     });
     redraw();
 }
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
-/* ===== ZOOM ===== */
+/* ===== ZOOM SLIDER ===== */
 zoomNP.oninput=()=>{NP.scale=+zoomNP.value;zNP.textContent=zoomNP.value;redraw();}
 zoomOP.oninput=()=>{OP.scale=+zoomOP.value;zOP.textContent=zoomOP.value;redraw();}
 
