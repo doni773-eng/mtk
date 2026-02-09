@@ -1,105 +1,73 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vektor Interaktif Lengkap</title>
-
 <style>
-body{font-family:Arial;margin:0;padding:10px;background:#f4f6f8}
+body{font-family:Arial,sans-serif;margin:0;padding:10px;background:#f4f6f8}
 h2{text-align:center}
-.card{
-background:#fff;padding:15px;margin-bottom:15px;
-border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.1)
-}
+.card{background:#fff;padding:15px;margin-bottom:15px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
 input{width:60px;padding:5px;margin:3px}
-button{
-padding:8px 14px;border:none;border-radius:6px;
-background:#007bff;color:#fff;margin:3px
-}
-.result{margin-top:10px;background:#eef;padding:10px;border-radius:6px;word-wrap:break-word;}
-canvas{
-  border:1px solid #ccc;
-  background:#fff;
-  width:90%;
-  max-width:450px;
-  height:auto;
-  display:block;
-  margin:10px auto;
-}
+button{padding:8px 14px;border:none;border-radius:6px;background:#007bff;color:#fff;margin:3px}
+.result{margin-top:10px;background:#eef;padding:10px;border-radius:6px;word-wrap:break-word;font-size:16px}
+canvas{border:1px solid #ccc;background:#fff;width:90%;max-width:450px;height:auto;display:block;margin:10px auto;}
 .controls{text-align:center;margin-top:8px}
-
-.vektor{
-display:inline-grid;
-grid-template-columns:auto auto auto;
-gap:6px;font-weight:bold
-}
-.vektor .isi{display:grid;grid-template-rows:repeat(0,auto);text-align:center}
+.vektor{display:inline-grid;grid-template-columns:auto auto auto;gap:4px;font-weight:bold;vertical-align:middle}
+.vektor .isi{display:grid;grid-template-rows:auto auto;text-align:center}
 .kurung{font-size:1.2em;display:inline-block;transform-origin:center;}
 </style>
+<!-- MathJax -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
-
 <body>
 
-<h2>📐 Vektor Interaktif (Lengkap)</h2>
+<h2>📐 Vektor Interaktif Lengkap</h2>
 
-<!-- VEKTOR NEGATIF -->
 <div class="card">
 <h3>1️⃣ Vektor Negatif</h3>
-a = (<input id="ax"> , <input id="ay">)
+\(\vec{a}\) = (<input id="ax"> , <input id="ay">)
 <button onclick="negatif()">Cari</button>
 <div class="result" id="hasilNegatif"></div>
 </div>
 
-<!-- VEKTOR POSISI -->
 <div class="card">
 <h3>2️⃣ Vektor Posisi</h3>
-A = (<input id="px"> , <input id="py">)
+\(\vec{OA}\) = (<input id="px"> , <input id="py">)
 <button onclick="posisi()">Cari</button>
 <div class="result" id="hasilPosisi"></div>
 </div>
 
-<!-- VEKTOR NON POSISI -->
 <div class="card">
 <h3>3️⃣ Vektor Non Posisi</h3>
-OA = (<input id="oax"> , <input id="oay">)</br>
-OB = (<input id="obx"> , <input id="oby">)</br>
-<button onclick="nonPosisi()">Hitung dan Gambar</button>
+\(\vec{OA}\) = (<input id="oax"> , <input id="oay">)<br>
+\(\vec{OB}\) = (<input id="obx"> , <input id="oby">)<br>
+<button onclick="nonPosisi()">Hitung & Gambar</button>
 <div class="result" id="hasilAB"></div>
-
 <canvas id="kanvasNP"></canvas>
-<div class="controls">
-Zoom:
-<input type="range" id="zoomNP" min="10" max="80" value="30">
-<span id="zNP">30</span>
-</div>
+<div class="controls">Zoom: <input type="range" id="zoomNP" min="10" max="80" value="30"> <span id="zNP">30</span></div>
 </div>
 
-<!-- OPERASI VEKTOR -->
 <div class="card">
-<h3>4️⃣ Penjumlahan & Pengurangan Vektor (Dengan Langkah)</h3>
-a = (<input id="ax2"> , <input id="ay2">)<br>
-b = (<input id="bx2"> , <input id="by2">)<br>
-Silahkan Pilih Operasi vektornya<br>
+<h3>4️⃣ Penjumlahan & Pengurangan Vektor</h3>
+\(\vec{a}\) = (<input id="ax2"> , <input id="ay2">)<br>
+\(\vec{b}\) = (<input id="bx2"> , <input id="by2">)<br>
 <button onclick="jumlah()">a + b</button>
 <button onclick="kurang()">a − b</button>
 <div class="result" id="hasilJumlah"></div>
-
 <canvas id="kanvasOP"></canvas>
-<div class="controls">
-Zoom:
-<input type="range" id="zoomOP" min="10" max="80" value="30">
-<span id="zOP">30</span>
-</div>
+<div class="controls">Zoom: <input type="range" id="zoomOP" min="10" max="80" value="30"> <span id="zOP">30</span></div>
 </div>
 
 <script>
-/* ===== FUNSI VEKTOR DENGAN KURUNG DYNAMIC ===== */
+/* ===== Fungsi Kurung Kolom ===== */
 function vHTML(x,y){
-    let lenX = x.toString().length;
-    let lenY = y.toString().length;
-    let maxLen = Math.max(lenX,lenY);
-    let scale = 1.2 + (maxLen-1)*0.08;
+    let lenX=x.toString().length,lenY=y.toString().length;
+    let maxLen=Math.max(lenX,lenY);
+    let scale=1.2+(maxLen-1)*0.08;
     if(scale>2) scale=2;
     return `<span class="vektor">
         <span class="kurung" style="transform: scaleX(${scale})">(</span>
@@ -108,251 +76,176 @@ function vHTML(x,y){
     </span>`;
 }
 
-/* ===== VEKTOR DASAR DENGAN LANGKAH ===== */
+/* ===== VEKTOR NEGATIF ===== */
 function negatif(){
-    let x = +ax.value;
-    let y = +ay.value;
+    let x=+ax.value,y=+ay.value;
     let langkah=`Langkah mencari vektor negatif:<br>`;
-    langkah += `- Komponen x: -(${x}) = ${-x}<br>`;
-    langkah += `- Komponen y: -(${y}) = ${-y}<br>`;
-    langkah += `Hasil vektor negatif: ${vHTML(-x,-y)}`;
-    hasilNegatif.innerHTML=langkah;
+    langkah+=`1. Komponen x: -(${x}) = ${-x}<br>`;
+    langkah+=`2. Komponen y: -(${y}) = ${-y}<br>`;
+    langkah+=`Hasil: \\( \\vec{a} \\) = ${vHTML(x,y)} , \\( -\\vec{a} \\) = ${vHTML(-x,-y)}`;
+    hasilNegatif.innerHTML = langkah;
+    MathJax.typeset();
 }
 
+/* ===== VEKTOR POSISI ===== */
 function posisi(){
-    let x = +px.value;
-    let y = +py.value;
-    let langkah=`Vektor posisi OA adalah:<br>`;
-    langkah += `x = ${x}, y = ${y}<br>`;
-    langkah += `Sehingga OA = ${vHTML(x,y)}`;
+    let x=+px.value,y=+py.value;
+    let langkah=`Langkah menentukan vektor posisi OA:<br>`;
+    langkah+=`x = ${x}, y = ${y}<br>`;
+    langkah+=`Hasil: \\( \\vec{OA} \\) = ${vHTML(x,y)}`;
     hasilPosisi.innerHTML=langkah;
+    MathJax.typeset();
 }
 
+/* ===== CANVAS SETUP ===== */
+function setupCanvas(id){
+    let c=document.getElementById(id);
+    c.width=c.clientWidth;
+    c.height=c.clientWidth;
+    let ctx=c.getContext("2d");
+    return {c,ctx,scale:30,ox:c.width/2,oy:c.height/2,drag:false,x0:0,y0:0};
+}
+
+/* ===== NP Canvas ===== */
+let NP=setupCanvas("kanvasNP");
+let dataNP=null;
+
+/* ===== OP Canvas ===== */
+let OP=setupCanvas("kanvasOP");
+let dataOP=null;
+
+/* ===== DRAW GRID & AXES ===== */
+function drawGrid(ctx,ox,oy,scale){
+    ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+    ctx.strokeStyle="#ddd"; ctx.lineWidth=1; ctx.font="12px Arial";
+    // vertical
+    for(let i=-20;i<=20;i++){
+        ctx.beginPath();
+        ctx.moveTo(ox+i*scale,0); ctx.lineTo(ox+i*scale,ctx.canvas.height); ctx.stroke();
+        if(i!==0) ctx.fillText(i,ox+i*scale+2,oy-2);
+    }
+    // horizontal
+    for(let j=-20;j<=20;j++){
+        ctx.beginPath();
+        ctx.moveTo(0,oy-j*scale); ctx.lineTo(ctx.canvas.width,oy-j*scale); ctx.stroke();
+        if(j!==0) ctx.fillText(j,ox+2,oy-j*scale-2);
+    }
+    // axes
+    ctx.strokeStyle="#000";
+    ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(0,oy); ctx.lineTo(ctx.canvas.width,oy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ox,0); ctx.lineTo(ox,ctx.canvas.height); ctx.stroke();
+}
+
+/* ===== DRAW VECTOR ===== */
+function drawVector(ctx,ox,oy,scale,x1,y1,x2,y2,color,label){
+    let X1=ox+x1*scale,Y1=oy-y1*scale;
+    let X2=ox+x2*scale,Y2=oy-y2*scale;
+    ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(X1,Y1); ctx.lineTo(X2,Y2); ctx.stroke();
+    // arrowhead
+    let h=10*(scale/30),a=Math.atan2(Y2-Y1,X2-X1);
+    ctx.beginPath();
+    ctx.moveTo(X2,Y2);
+    ctx.lineTo(X2-h*Math.cos(a-Math.PI/6),Y2-h*Math.sin(a-Math.PI/6));
+    ctx.lineTo(X2-h*Math.cos(a+Math.PI/6),Y2-h*Math.sin(a+Math.PI/6));
+    ctx.closePath(); ctx.fill();
+    // label
+    ctx.font=`${12*(scale/30)}px Arial`; ctx.fillStyle="#000";
+    ctx.fillText(label,(X1+X2)/2+5,(Y1+Y2)/2-5);
+}
+
+/* ===== REDRAW NP ===== */
+function redrawNP(){
+    drawGrid(NP.ctx,NP.ox,NP.oy,NP.scale);
+    if(!dataNP) return;
+    drawVector(NP.ctx,NP.ox,NP.oy,NP.scale,0,0,dataNP.a.x,dataNP.a.y,"blue","OA");
+    drawVector(NP.ctx,NP.ox,NP.oy,NP.scale,0,0,dataNP.b.x,dataNP.b.y,"green","OB");
+    drawVector(NP.ctx,NP.ox,NP.oy,NP.scale,dataNP.a.x,dataNP.a.y,dataNP.b.x,dataNP.b.y,"red","AB");
+}
+
+/* ===== REDRAW OP ===== */
+function redrawOP(){
+    drawGrid(OP.ctx,OP.ox,OP.oy,OP.scale);
+    if(!dataOP) return;
+    let {a,b,t}=dataOP;
+    let dx=t==="+"?a.x+b.x:a.x-b.x;
+    let dy=t==="+"?a.y+b.y:a.y-b.y;
+    drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,0,0,a.x,a.y,"blue","a");
+    drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,0,0,b.x,b.y,"green","b");
+    drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,0,0,dx,dy,"red","hasil");
+}
+
+/* ===== NP Function ===== */
 function nonPosisi(){
     let a={x:+oax.value,y:+oay.value};
     let b={x:+obx.value,y:+oby.value};
     dataNP={a,b};
-    
-    let dx = b.x - a.x;
-    let dy = b.y - a.y;
-    let langkah=`Langkah mencari vektor AB (dari OA ke OB):<br>`;
-    langkah += `1. Komponen x: ${b.x} - ${a.x} = ${dx}<br>`;
-    langkah += `2. Komponen y: ${b.y} - ${a.y} = ${dy}<br>`;
-    langkah += `3. Hasil vektor AB = ${vHTML(dx,dy)}`;
-    
+    let dx=b.x-a.x, dy=b.y-a.y;
+    let langkah=`Langkah mencari vektor AB:<br>`;
+    langkah+=`1. Komponen x: ${b.x} - ${a.x} = ${dx}<br>`;
+    langkah+=`2. Komponen y: ${b.y} - ${a.y} = ${dy}<br>`;
+    langkah+=`3. Hasil: \\( \\vec{AB} \\) = ${vHTML(dx,dy)}`;
     hasilAB.innerHTML=langkah;
-    redraw();
+    MathJax.typeset();
+    redrawNP();
 }
 
+/* ===== OP Function ===== */
 function jumlah(){
     let a={x:+ax2.value,y:+ay2.value};
     let b={x:+bx2.value,y:+by2.value};
     dataOP={a,b,t:"+"};
-    
+    let dx=a.x+b.x, dy=a.y+b.y;
     let langkah=`Langkah Penjumlahan Vektor:<br>`;
-    langkah += `1. Komponen x: ${a.x} + ${b.x} = ${a.x+b.x}<br>`;
-    langkah += `2. Komponen y: ${a.y} + ${b.y} = ${a.y+b.y}<br>`;
-    langkah += `3. Hasil vektor: ${vHTML(a.x+b.x,a.y+b.y)}`;
-    
+    langkah+=`1. Komponen x: ${a.x} + ${b.x} = ${dx}<br>`;
+    langkah+=`2. Komponen y: ${a.y} + ${b.y} = ${dy}<br>`;
+    langkah+=`3. Hasil: \\( \\vec{a} + \\vec{b} \\) = ${vHTML(dx,dy)}`;
     hasilJumlah.innerHTML=langkah;
-    redraw();
+    MathJax.typeset();
+    redrawOP();
 }
 
 function kurang(){
     let a={x:+ax2.value,y:+ay2.value};
     let b={x:+bx2.value,y:+by2.value};
     dataOP={a,b,t:"-"};
-    
+    let dx=a.x-b.x, dy=a.y-b.y;
     let langkah=`Langkah Pengurangan Vektor:<br>`;
-    langkah += `1. Komponen x: ${a.x} - ${b.x} = ${a.x-b.x}<br>`;
-    langkah += `2. Komponen y: ${a.y} - ${b.y} = ${a.y-b.y}<br>`;
-    langkah += `3. Hasil vektor: ${vHTML(a.x-b.x,a.y-b.y)}`;
-    
+    langkah+=`1. Komponen x: ${a.x} - ${b.x} = ${dx}<br>`;
+    langkah+=`2. Komponen y: ${a.y} - ${b.y} = ${dy}<br>`;
+    langkah+=`3. Hasil: \\( \\vec{a} - \\vec{b} \\) = ${vHTML(dx,dy)}`;
     hasilJumlah.innerHTML=langkah;
-    redraw();
+    MathJax.typeset();
+    redrawOP();
 }
 
-/* ===== SETUP KANVAS MOBILE + PINCH ZOOM ===== */
-function setup(c){
-    let o={c,ctx:c.getContext("2d"),scale:30,ox:c.width/2,oy:c.height/2,drag:false,x:0,y:0,pinch:false,dist0:0,scale0:30};
+/* ===== Zoom Slider ===== */
+zoomNP.oninput=()=>{NP.scale=+zoomNP.value; zNP.textContent=zoomNP.value; redrawNP();}
+zoomOP.oninput=()=>{OP.scale=+zoomOP.value; zOP.textContent=zoomOP.value; redrawOP();}
 
-    // Mouse events
-    c.onmousedown=e=>{o.drag=true;o.x=e.offsetX;o.y=e.offsetY;};
+/* ===== Drag Canvas ===== */
+function makeDraggable(o){
+    let c=o.c;
+    c.onmousedown=e=>{o.drag=true;o.x0=e.offsetX;o.y0=e.offsetY;};
     c.onmouseup=()=>o.drag=false;
     c.onmouseleave=()=>o.drag=false;
     c.onmousemove=e=>{
-        if(!o.drag || o.pinch) return;
-        o.ox += e.offsetX-o.x;
-        o.oy += e.offsetY-o.y;
-        o.x=e.offsetX;o.y=e.offsetY;
-        redraw();
+        if(o.drag){o.ox+=e.offsetX-o.x0;o.oy+=e.offsetY-o.y0;o.x0=e.offsetX;o.y0=e.offsetY;
+        o===NP?redrawNP():redrawOP();}
     };
-
-    // Touch events
+    // Touch
     c.ontouchstart=e=>{
-        e.preventDefault();
-        if(e.touches.length==1){
-            let t = e.touches[0];
-            let rect = c.getBoundingClientRect();
-            o.drag=true; o.pinch=false;
-            o.x = t.clientX - rect.left;
-            o.y = t.clientY - rect.top;
-        } else if(e.touches.length==2){
-            let t1=e.touches[0], t2=e.touches[1];
-            let dx = t2.clientX - t1.clientX;
-            let dy = t2.clientY - t1.clientY;
-            o.dist0 = Math.sqrt(dx*dx + dy*dy);
-            o.scale0 = o.scale;
-            o.pinch=true; o.drag=false;
-        }
+        if(e.touches.length===1){o.drag=true;o.x0=e.touches[0].clientX;o.y0=e.touches[0].clientY;}
     };
-
     c.ontouchmove=e=>{
-        e.preventDefault();
-        let rect=c.getBoundingClientRect();
-        if(o.pinch && e.touches.length==2){
-            let t1=e.touches[0], t2=e.touches[1];
-            let dx = t2.clientX - t1.clientX;
-            let dy = t2.clientY - t1.clientY;
-            let dist = Math.sqrt(dx*dx + dy*dy);
-            let ratio = dist/o.dist0;
-            o.scale = o.scale0*ratio;
-            if(o.scale<5) o.scale=5;
-            if(o.scale>150) o.scale=150;
-            redraw();
-        } else if(o.drag && e.touches.length==1){
-            let t = e.touches[0];
-            let x2 = t.clientX - rect.left;
-            let y2 = t.clientY - rect.top;
-            o.ox += x2 - o.x;
-            o.oy += y2 - o.y;
-            o.x = x2; o.y = y2;
-            redraw();
-        }
+        if(o.drag&&e.touches.length===1){let t=e.touches[0]; o.ox+=t.clientX-o.x0; o.oy+=t.clientY-o.y0; o.x0=t.clientX; o.y0=t.clientY;
+        o===NP?redrawNP():redrawOP();}
     };
-
-    c.ontouchend=()=>{o.drag=false;o.pinch=false;};
-    c.ontouchcancel=()=>{o.drag=false;o.pinch=false;};
-
-    return o;
+    c.ontouchend=()=>o.drag=false;
 }
+makeDraggable(NP); makeDraggable(OP);
 
-/* ===== INISIALISASI ===== */
-let NP=setup(kanvasNP);
-let OP=setup(kanvasOP);
-let dataNP=null,dataOP=null;
-
-/* ===== RESPONSIVE CANVAS ===== */
-function resizeCanvas(){
-    let canvases = [kanvasNP, kanvasOP];
-    canvases.forEach(c=>{
-        let parentWidth = c.parentElement.clientWidth;
-        let w = Math.min(parentWidth*0.9, 450); // 90% layar atau max 450px
-        c.width = w;
-        c.height = w; // kotak agar vektor proporsional
-    });
-    redraw();
-}
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
-
-/* ===== ZOOM SLIDER ===== */
-zoomNP.oninput=()=>{NP.scale=+zoomNP.value;zNP.textContent=zoomNP.value;redraw();}
-zoomOP.oninput=()=>{OP.scale=+zoomOP.value;zOP.textContent=zoomOP.value;redraw();}
-
-/* ===== GRID ===== */
-function gridNP(o){
-let {ctx,c,scale,ox,oy}=o;
-ctx.clearRect(0,0,c.width,c.height);
-let minX=Math.floor((-ox)/scale)-1;
-let maxX=Math.ceil((c.width-ox)/scale)+1;
-let minY=Math.floor((oy-c.height)/scale)-1;
-let maxY=Math.ceil((oy)/scale)+1;
-ctx.strokeStyle="#ddd";ctx.lineWidth=1;ctx.font="11px Arial";
-
-for(let x=minX;x<=maxX;x++){
-ctx.beginPath();ctx.moveTo(ox+x*scale,0);ctx.lineTo(ox+x*scale,c.height);ctx.stroke();
-if(x!==0) ctx.fillText(x,ox+x*scale+2,oy-2);
-}
-for(let y=minY;y<=maxY;y++){
-ctx.beginPath();ctx.moveTo(0,oy-y*scale);ctx.lineTo(c.width,oy-y*scale);ctx.stroke();
-if(y!==0) ctx.fillText(y,ox+2,oy-y*scale-2);
-}
-ctx.strokeStyle="#000";
-ctx.beginPath();ctx.moveTo(0,oy);ctx.lineTo(c.width,oy);ctx.stroke();
-ctx.beginPath();ctx.moveTo(ox,0);ctx.lineTo(ox,c.height);ctx.stroke();
-}
-
-function gridOP(o){
-let {ctx,c,scale,ox,oy}=o;
-ctx.clearRect(0,0,c.width,c.height);
-let minX=Math.floor((-ox)/scale)-1;
-let maxX=Math.ceil((c.width-ox)/scale)+1;
-let minY=Math.floor((oy-c.height)/scale)-1;
-let maxY=Math.ceil((oy)/scale)+1;
-ctx.strokeStyle="#ccc";
-ctx.lineWidth=1.5;
-
-for(let x=minX;x<=maxX;x++){
-ctx.beginPath();
-ctx.moveTo(ox+x*scale,0);
-ctx.lineTo(ox+x*scale,c.height);
-ctx.stroke();
-}
-for(let y=minY;y<=maxY;y++){
-ctx.beginPath();
-ctx.moveTo(0,oy-y*scale);
-ctx.lineTo(c.width,oy-y*scale);
-ctx.stroke();
-}
-ctx.lineWidth=1;
-}
-
-/* ===== VEKTOR ===== */
-function vec(o,x1,y1,x2,y2,col,lbl){
-    let {ctx,scale,ox,oy}=o;
-    let X1=ox+x1*scale,Y1=oy-y1*scale;
-    let X2=ox+x2*scale,Y2=oy-y2*scale;
-
-    ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=2;
-    ctx.beginPath(); ctx.moveTo(X1,Y1); ctx.lineTo(X2,Y2); ctx.stroke();
-
-    let h = 10*(scale/30);
-    let a = Math.atan2(Y2-Y1,X2-X1);
-    ctx.beginPath();
-    ctx.moveTo(X2,Y2);
-    ctx.lineTo(X2-h*Math.cos(a-Math.PI/6),Y2-h*Math.sin(a-Math.PI/6));
-    ctx.lineTo(X2-h*Math.cos(a+Math.PI/6),Y2-h*Math.sin(a+Math.PI/6));
-    ctx.fill();
-
-    let fontSize = 12*(scale/30);
-    ctx.font = `${fontSize}px Arial`;
-    let offset = 5*(scale/30);
-    if(Math.abs(X2-X1)<30 && Math.abs(Y2-Y1)<30){ offset += 10; }
-    ctx.fillStyle = "#000";
-    ctx.fillText(lbl,(X1+X2)/2 + offset,(Y1+Y2)/2 - offset);
-}
-
-/* ===== DRAW ===== */
-function redraw(){
-gridNP(NP);
-if(dataNP){
-vec(NP,0,0,dataNP.a.x,dataNP.a.y,"blue","OA");
-vec(NP,0,0,dataNP.b.x,dataNP.b.y,"green","OB");
-vec(NP,dataNP.a.x,dataNP.a.y,dataNP.b.x,dataNP.b.y,"red","AB");
-}
-
-gridOP(OP);
-if(dataOP){
-let {a,b,t}=dataOP;
-let x=t==="+"?a.x+b.x:a.x-b.x;
-let y=t==="+"?a.y+b.y:a.y-b.y;
-vec(OP,0,0,a.x,a.y,"blue","a");
-vec(OP,a.x,a.y,x,y,"green","b");
-vec(OP,0,0,x,y,"red","hasil");
-}
-}
 </script>
-
 </body>
 </html>
