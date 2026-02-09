@@ -5,20 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vektor Interaktif Lengkap + Animasi</title>
 <style>
-body{font-family:Arial,sans-serif;margin:0;padding:10px;background:#f4f6f8}
-h2{text-align:center}
-.card{background:#fff;padding:15px;margin-bottom:15px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
-input{width:60px;padding:5px;margin:3px;border:1px solid #ccc;border-radius:4px;text-align:center;}
-input::placeholder { color: #aaa; text-align: center; }
-button{padding:8px 14px;border:none;border-radius:6px;background:#007bff;color:#fff;margin:3px;cursor: pointer;}
-button:hover{background:#0056b3;}
-.result{margin-top:10px;background:#eef;padding:10px;border-radius:6px;word-wrap:break-word;font-size:16px; min-height: 20px;}
-canvas{border:1px solid #ccc;background:#fff;width:90%;max-width:450px;height:auto;display:block;margin:10px auto;cursor: grab;}
-canvas:active{cursor: grabbing;}
-.controls{text-align:center;margin-top:8px}
-.vektor{display:inline-grid;grid-template-columns:auto auto auto;gap:4px;font-weight:bold;vertical-align:middle}
-.vektor .isi{display:grid;grid-template-rows:auto auto;text-align:center}
-.kurung{font-size:1.2em;display:inline-block;transform-origin:center;}
+    body{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;margin:0;padding:10px;background:#f4f6f8;color:#333}
+    h2{text-align:center; color:#2c3e50}
+    .card{background:#fff;padding:20px;margin-bottom:15px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+    h3{margin-top:0; color:#007bff; border-bottom: 2px solid #eee; padding-bottom: 5px;}
+    input{width:60px;padding:8px;margin:3px;border:1px solid #ccc;border-radius:6px;text-align:center; font-size: 14px;}
+    input:focus{outline:none; border-color:#007bff; box-shadow: 0 0 5px rgba(0,123,255,0.2)}
+    button{padding:8px 16px;border:none;border-radius:6px;background:#007bff;color:#fff;margin:3px;cursor: pointer; transition: 0.2s;}
+    button:hover{background:#0056b3;}
+    .result{margin-top:15px;background:#f8f9ff;padding:15px;border-left:5px solid #007bff;border-radius:6px;word-wrap:break-word;font-size:16px; min-height: 20px; line-height: 1.6;}
+    canvas{border:1px solid #ddd;background:#fff;width:100%;max-width:450px;height:auto;display:block;margin:15px auto;cursor: grab; border-radius: 8px;}
+    canvas:active{cursor: grabbing;}
+    .controls{text-align:center;margin-top:8px; font-weight: bold; color: #666;}
+    /* Styling khusus MathJax agar terlihat rapi */
+    .mjx-chtml { font-size: 110% !important; }
 </style>
 <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -28,51 +28,44 @@ canvas:active{cursor: grabbing;}
 <h2>📐 Vektor Interaktif Lengkap + Animasi</h2>
 
 <div class="card">
-<h3>1️⃣ Vektor Negatif</h3>
-\(\vec{a}\) = (<input id="ax" placeholder="x"> , <input id="ay" placeholder="y">)
-<button onclick="negatif()">Cari</button>
-<div class="result" id="hasilNegatif"></div>
+    <h3>1️⃣ Vektor Negatif</h3>
+    \(\vec{a}\) = (<input id="ax" placeholder="x"> , <input id="ay" placeholder="y">)
+    <button onclick="negatif()">Cari</button>
+    <div class="result" id="hasilNegatif"></div>
 </div>
 
 <div class="card">
-<h3>2️⃣ Vektor Posisi</h3>
-\(\vec{OA}\) = (<input id="px" placeholder="x"> , <input id="py" placeholder="y">)
-<button onclick="posisi()">Cari</button>
-<div class="result" id="hasilPosisi"></div>
+    <h3>2️⃣ Vektor Posisi</h3>
+    \(\vec{OA}\) = (<input id="px" placeholder="x"> , <input id="py" placeholder="y">)
+    <button onclick="posisi()">Cari</button>
+    <div class="result" id="hasilPosisi"></div>
 </div>
 
 <div class="card">
-<h3>3️⃣ Vektor Non Posisi (Animasi)</h3>
-\(\vec{OA}\) = (<input id="oax" placeholder="x1"> , <input id="oay" placeholder="y1">)<br>
-\(\vec{OB}\) = (<input id="obx" placeholder="x2"> , <input id="oby" placeholder="y2">)<br>
-<button onclick="nonPosisi()">Hitung & Gambar</button>
-<div class="result" id="hasilAB"></div>
-<canvas id="kanvasNP"></canvas>
-<div class="controls">Zoom: <input type="range" id="zoomNP" min="10" max="80" value="30"> <span id="zNP">30</span></div>
+    <h3>3️⃣ Vektor Non Posisi (Animasi)</h3>
+    Titik A = (<input id="oax" placeholder="x1"> , <input id="oay" placeholder="y1">)<br>
+    Titik B = (<input id="obx" placeholder="x2"> , <input id="oby" placeholder="y2">)<br>
+    <button onclick="nonPosisi()">Hitung & Gambar</button>
+    <div class="result" id="hasilAB"></div>
+    <canvas id="kanvasNP"></canvas>
+    <div class="controls">Zoom: <input type="range" id="zoomNP" min="10" max="80" value="30"> <span id="zNP">30</span></div>
 </div>
 
 <div class="card">
-<h3>4️⃣ Operasi Vektor (Animasi)</h3>
-\(\vec{a}\) = (<input id="ax2" placeholder="ax"> , <input id="ay2" placeholder="ay">)<br>
-\(\vec{b}\) = (<input id="bx2" placeholder="bx"> , <input id="by2" placeholder="by">)<br>
-<button onclick="jumlah()">a + b</button>
-<button onclick="kurang()">a − b</button>
-<div class="result" id="hasilJumlah"></div>
-<canvas id="kanvasOP"></canvas>
-<div class="controls">Zoom: <input type="range" id="zoomOP" min="10" max="200" value="50"> <span id="zOP">50</span></div>
+    <h3>4️⃣ Operasi Vektor (Animasi)</h3>
+    \(\vec{a}\) = (<input id="ax2" placeholder="ax"> , <input id="ay2" placeholder="ay">)<br>
+    \(\vec{b}\) = (<input id="bx2" placeholder="bx"> , <input id="by2" placeholder="by">)<br>
+    <button onclick="jumlah()">a + b</button>
+    <button onclick="kurang()">a − b</button>
+    <div class="result" id="hasilJumlah"></div>
+    <canvas id="kanvasOP"></canvas>
+    <div class="controls">Zoom: <input type="range" id="zoomOP" min="10" max="200" value="50"> <span id="zOP">50</span></div>
 </div>
 
 <script>
-function vHTML(x,y){
-    let lenX=x.toString().length, lenY=y.toString().length;
-    let maxLen=Math.max(lenX,lenY);
-    let scale=1.2+(maxLen-1)*0.08;
-    if(scale>2) scale=2;
-    return `<span class="vektor">
-        <span class="kurung" style="transform: scaleX(${scale})">(</span>
-        <span class="isi"><span>${x}</span><span>${y}</span></span>
-        <span class="kurung" style="transform: scaleX(${scale})">)</span>
-    </span>`;
+// FUNGSI vHTML BARU: Menggunakan LaTeX pmatrix untuk kurung sempurna
+function vHTML(x, y) {
+    return `\\( \\begin{pmatrix} ${x} \\\\ ${y} \\end{pmatrix} \\)`;
 }
 
 function ambilNilai(id) {
@@ -87,11 +80,11 @@ function ambilNilai(id) {
 function negatif(){
     try {
         let x=ambilNilai('ax'), y=ambilNilai('ay');
-        let langkah=`Langkah mencari vektor negatif:<br>`;
-        langkah+=`1. Komponen x: -(${x}) = ${-x}<br>`;
-        langkah+=`2. Komponen y: -(${y}) = ${-y}<br>`;
-        langkah+=`Hasil: \\( \\vec{a} \\) = ${vHTML(x,y)} , \\( -\\vec{a} \\) = ${vHTML(-x,-y)}`;
-        hasilNegatif.innerHTML = langkah;
+        let langkah=`<b>Langkah mencari vektor negatif:</b><br>`;
+        langkah+=`1. Komponen x: \\( -(${x}) = ${-x} \\)<br>`;
+        langkah+=`2. Komponen y: \\( -(${y}) = ${-y} \\)<br>`;
+        langkah+=`<b>Hasil:</b> \\( \\vec{a} \\) = ${vHTML(x,y)} , maka \\( -\\vec{a} \\) = ${vHTML(-x,-y)}`;
+        document.getElementById('hasilNegatif').innerHTML = langkah;
         MathJax.typeset();
     } catch(e) {}
 }
@@ -99,18 +92,20 @@ function negatif(){
 function posisi(){
     try {
         let x=ambilNilai('px'), y=ambilNilai('py');
-        let langkah=`Langkah menentukan vektor posisi OA:<br>`;
-        langkah+=`x = ${x}, y = ${y}<br>`;
-        langkah+=`Hasil: \\( \\vec{OA} \\) = ${vHTML(x,y)}`;
-        hasilPosisi.innerHTML=langkah;
+        let langkah=`<b>Langkah menentukan vektor posisi OA:</b><br>`;
+        langkah+=`Titik berada di (x: ${x}, y: ${y})<br>`;
+        langkah+=`<b>Hasil:</b> \\( \\vec{OA} \\) = ${vHTML(x,y)}`;
+        document.getElementById('hasilPosisi').innerHTML=langkah;
         MathJax.typeset();
     } catch(e) {}
 }
 
+// --- LOGIKA CANVAS & ANIMASI (Tetap Sama) ---
+
 function setupCanvas(id){
     let c=document.getElementById(id);
-    c.width=c.clientWidth;
-    c.height=c.clientWidth;
+    c.width=450; 
+    c.height=450;
     let ctx=c.getContext("2d");
     return {c,ctx,scale:30,ox:c.width/2,oy:c.height/2,drag:false,x0:0,y0:0};
 }
@@ -127,88 +122,64 @@ function drawGrid(ctx, ox, oy, scale, showAxes = true){
     const w = ctx.canvas.width;
     const h = ctx.canvas.height;
     ctx.clearRect(0, 0, w, h);
-    ctx.font="10px Arial";
-    ctx.textAlign="start";
-    ctx.textBaseline="top";
-
+    
     let startX = ox % scale;
     for(let x = startX; x < w; x += scale){
-        ctx.strokeStyle = "#ddd";
+        ctx.strokeStyle = "#eee";
         ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
-        if(showAxes) {
-            let valX = Math.round((x - ox) / scale);
-            if(valX !== 0) { ctx.fillStyle = "#888"; ctx.fillText(valX, x + 2, oy + 2); }
-        }
     }
 
     let startY = oy % scale;
     for(let y = startY; y < h; y += scale){
-        ctx.strokeStyle = "#ddd";
+        ctx.strokeStyle = "#eee";
         ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-        if(showAxes) {
-            let valY = Math.round((oy - y) / scale);
-            if(valY !== 0) { ctx.fillStyle = "#888"; ctx.fillText(valY, ox + 2, y + 2); }
-        }
     }
 
     if(showAxes) {
-        ctx.strokeStyle="#000"; ctx.lineWidth=1.5;
+        ctx.strokeStyle="#999"; ctx.lineWidth=1.5;
         ctx.beginPath(); ctx.moveTo(0, oy); ctx.lineTo(w, oy); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(ox, 0); ctx.lineTo(ox, h); ctx.stroke();
-        ctx.fillStyle="#000"; ctx.fillText("0", ox+2, oy+2);
+        ctx.fillStyle="#000"; ctx.fillText("0", ox+5, oy+12);
     }
 }
 
-/* ===== DRAW VECTOR DENGAN TITIK AWAL HITAM ===== */
 function drawVector(ctx,ox,oy,scale,x1,y1,x2,y2,color,label, progress = 1.0){
     let X1=ox+x1*scale, Y1=oy-y1*scale;
     let curX2 = x1 + (x2 - x1) * progress;
     let curY2 = y1 + (y2 - y1) * progress;
     let X2=ox+curX2*scale, Y2=oy-curY2*scale;
 
-    // 1. Gambar Titik Awal (Dot) HITAM
     ctx.fillStyle = "#000";
-    ctx.beginPath();
-    ctx.arc(X1, Y1, 3.5, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(X1, Y1, 4, 0, Math.PI * 2); ctx.fill();
 
-    // 2. Gambar Garis Vektor
-    ctx.strokeStyle=color; 
-    ctx.lineWidth=2;
+    ctx.strokeStyle=color; ctx.lineWidth=3;
     ctx.beginPath(); ctx.moveTo(X1,Y1); ctx.lineTo(X2,Y2); ctx.stroke();
 
-    // 3. Gambar Kepala Panah
     ctx.fillStyle=color;
-    let head=8*(scale/30), a=Math.atan2(Y2-Y1,X2-X1);
+    let head=10, a=Math.atan2(Y2-Y1,X2-X1);
     ctx.beginPath(); ctx.moveTo(X2,Y2);
     ctx.lineTo(X2-head*Math.cos(a-Math.PI/6), Y2-head*Math.sin(a-Math.PI/6));
     ctx.lineTo(X2-head*Math.cos(a+Math.PI/6), Y2-head*Math.sin(a+Math.PI/6));
     ctx.closePath(); ctx.fill();
 
-    // 4. Gambar Label di Tengah
     if(progress >= 1.0) {
-        let midX = (X1 + X2) / 2;
-        let midY = (Y1 + Y2) / 2;
-        ctx.font="bold 13px Arial";
-        ctx.textAlign="center";
-        ctx.textBaseline="middle";
-        ctx.strokeStyle = "white";
-        ctx.lineWidth = 3;
-        ctx.strokeText(label, midX, midY);
+        ctx.font="bold 14px Arial"; ctx.textAlign="center";
         ctx.fillStyle = color;
-        ctx.fillText(label, midX, midY);
+        ctx.fillText(label, (X1+X2)/2, (Y1+Y2)/2 - 10);
     }
 }
 
-function redrawNP(){
-    if(animIdNP) cancelAnimationFrame(animIdNP);
-    drawGrid(NP.ctx, NP.ox, NP.oy, NP.scale, true);
-    if(!dataNP) return;
-    drawVector(NP.ctx,NP.ox,NP.oy,NP.scale,0,0,dataNP.a.x,dataNP.a.y,"blue","OA");
-    drawVector(NP.ctx,NP.ox,NP.oy,NP.scale,0,0,dataNP.b.x,dataNP.b.y,"green","OB");
-    drawVector(NP.ctx,NP.ox,NP.oy,NP.scale,dataNP.a.x,dataNP.a.y,dataNP.b.x,dataNP.b.y,"red","AB");
+function nonPosisi(){
+    try {
+        let a={x:ambilNilai('oax'), y:ambilNilai('oay')};
+        let b={x:ambilNilai('obx'), y:ambilNilai('oby')};
+        dataNP={a,b};
+        let dx=b.x-a.x, dy=b.y-a.y;
+        document.getElementById('hasilAB').innerHTML=`<b>Langkah mencari vektor AB:</b><br>1. x: ${b.x} - ${a.x} = ${dx}<br>2. y: ${b.y} - ${a.y} = ${dy}<br><b>Hasil:</b> \\( \\vec{AB} \\) = ${vHTML(dx,dy)}`;
+        MathJax.typeset(); animateNP();
+    } catch(e) {}
 }
 
 function animateNP() {
@@ -227,46 +198,6 @@ function animateNP() {
     animIdNP = requestAnimationFrame(step);
 }
 
-function redrawOP(){
-    if(animIdOP) cancelAnimationFrame(animIdOP);
-    drawGrid(OP.ctx, OP.ox, OP.oy, OP.scale, false);
-    if(!dataOP) return;
-    let dx = (dataOP.t==="+" ? dataOP.a.x + dataOP.b.x : dataOP.a.x - dataOP.b.x);
-    let dy = (dataOP.t==="+" ? dataOP.a.y + dataOP.b.y : dataOP.a.y - dataOP.b.y);
-    drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,0,0,dataOP.a.x,dataOP.a.y,"blue","a");
-    drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,dataOP.a.x,dataOP.a.y,dx,dy,"green",dataOP.t==="+"?"b":"-b");
-    drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,0,0,dx,dy,"red","hasil");
-}
-
-function animateOP() {
-    if(animIdOP) cancelAnimationFrame(animIdOP);
-    let start = null;
-    function step(ts) {
-        if(!start) start = ts;
-        let p = (ts - start) / 1500;
-        if(p > 1) p = 1;
-        drawGrid(OP.ctx, OP.ox, OP.oy, OP.scale, false);
-        let curDx = (dataOP.t==="+" ? dataOP.a.x + dataOP.b.x : dataOP.a.x - dataOP.b.x);
-        let curDy = (dataOP.t==="+" ? dataOP.a.y + dataOP.b.y : dataOP.a.y - dataOP.b.y);
-        drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,0,0,dataOP.a.x,dataOP.a.y,"blue","a", Math.min(1, p*3));
-        if(p > 0.33) drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,dataOP.a.x,dataOP.a.y,curDx,curDy,"green",dataOP.t==="+"?"b":"-b", Math.min(1, (p-0.33)*3));
-        if(p > 0.66) drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,0,0,curDx,curDy,"red","hasil", Math.min(1, (p-0.66)*3));
-        if(p < 1) animIdOP = requestAnimationFrame(step);
-    }
-    animIdOP = requestAnimationFrame(step);
-}
-
-function nonPosisi(){
-    try {
-        let a={x:ambilNilai('oax'), y:ambilNilai('oay')};
-        let b={x:ambilNilai('obx'), y:ambilNilai('oby')};
-        dataNP={a,b};
-        let dx=b.x-a.x, dy=b.y-a.y;
-        hasilAB.innerHTML=`Langkah mencari vektor AB:<br>1. Komponen x: ${b.x} - ${a.x} = ${dx}<br>2. Komponen y: ${b.y} - ${a.y} = ${dy}<br>Hasil: \\( \\vec{AB} \\) = ${vHTML(dx,dy)}`;
-        MathJax.typeset(); animateNP();
-    } catch(e) {}
-}
-
 function jumlah(){ setupOPData("+"); }
 function kurang(){ setupOPData("-"); }
 
@@ -278,34 +209,47 @@ function setupOPData(tipe){
         let dx = (tipe==="+" ? a.x + b.x : a.x - b.x);
         let dy = (tipe==="+" ? a.y + b.y : a.y - b.y);
         let opSign = tipe==="+" ? "+" : "-";
-        hasilJumlah.innerHTML=`Langkah ${tipe==="+"?"Jumlah":"Kurang"}:<br>1. x: ${a.x} ${opSign} ${b.x} = ${dx}<br>2. y: ${a.y} ${opSign} ${b.y} = ${dy}<br>Hasil: ${vHTML(dx,dy)}`;
+        document.getElementById('hasilJumlah').innerHTML=`<b>Langkah ${tipe==="+"?"Penjumlahan":"Pengurangan"}:</b><br>1. x: ${a.x} ${opSign} ${b.x} = ${dx}<br>2. y: ${a.y} ${opSign} ${b.y} = ${dy}<br><b>Hasil:</b> ${vHTML(dx,dy)}`;
         MathJax.typeset(); animateOP();
     } catch(e) {}
 }
 
-zoomNP.oninput=()=>{NP.scale=+zoomNP.value; zNP.textContent=zoomNP.value; redrawNP();}
-zoomOP.oninput=()=>{OP.scale=+zoomOP.value; zOP.textContent=zoomOP.value; redrawOP();}
+function animateOP() {
+    if(animIdOP) cancelAnimationFrame(animIdOP);
+    let start = null;
+    function step(ts) {
+        if(!start) start = ts;
+        let p = (ts - start) / 1500;
+        if(p > 1) p = 1;
+        drawGrid(OP.ctx, OP.ox, OP.oy, OP.scale, true);
+        let curDx = (dataOP.t==="+" ? dataOP.a.x + dataOP.b.x : dataOP.a.x - dataOP.b.x);
+        let curDy = (dataOP.t==="+" ? dataOP.a.y + dataOP.b.y : dataOP.a.y - dataOP.b.y);
+        drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,0,0,dataOP.a.x,dataOP.a.y,"blue","a", Math.min(1, p*3));
+        if(p > 0.33) drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,dataOP.a.x,dataOP.a.y,curDx,curDy,"green",dataOP.t==="+"?"b":"-b", Math.min(1, (p-0.33)*3));
+        if(p > 0.66) drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,0,0,curDx,curDy,"red","hasil", Math.min(1, (p-0.66)*3));
+        if(p < 1) animIdOP = requestAnimationFrame(step);
+    }
+    animIdOP = requestAnimationFrame(step);
+}
+
+// Event Listeners Zoom
+zoomNP.oninput=()=>{NP.scale=+zoomNP.value; document.getElementById('zNP').textContent=zoomNP.value; redrawNP();}
+zoomOP.oninput=()=>{OP.scale=+zoomOP.value; document.getElementById('zOP').textContent=zoomOP.value; redrawOP();}
+
+function redrawNP(){ drawGrid(NP.ctx, NP.ox, NP.oy, NP.scale, true); if(dataNP){ drawVector(NP.ctx,NP.ox,NP.oy,NP.scale,0,0,dataNP.a.x,dataNP.a.y,"blue","OA"); drawVector(NP.ctx,NP.ox,NP.oy,NP.scale,0,0,dataNP.b.x,dataNP.b.y,"green","OB"); drawVector(NP.ctx,NP.ox,NP.oy,NP.scale,dataNP.a.x,dataNP.a.y,dataNP.b.x,dataNP.b.y,"red","AB"); }}
+function redrawOP(){ drawGrid(OP.ctx, OP.ox, OP.oy, OP.scale, true); if(dataOP){ let dx=(dataOP.t==="+"?dataOP.a.x+dataOP.b.x:dataOP.a.x-dataOP.b.x), dy=(dataOP.t==="+"?dataOP.a.y+dataOP.b.y:dataOP.a.y-dataOP.b.y); drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,0,0,dataOP.a.x,dataOP.a.y,"blue","a"); drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,dataOP.a.x,dataOP.a.y,dx,dy,"green",dataOP.t==="+"?"b":"-b"); drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,0,0,dx,dy,"red","hasil"); }}
 
 function makeDraggable(o){
     let c=o.c;
     const start = (x, y) => { o.drag=true; o.x0=x; o.y0=y; };
-    const move = (x, y) => {
-        if(o.drag){
-            o.ox += x - o.x0; o.oy += y - o.y0;
-            o.x0 = x; o.y0 = y;
-            o === NP ? redrawNP() : redrawOP();
-        }
-    };
+    const move = (x, y) => { if(o.drag){ o.ox += x - o.x0; o.oy += y - o.y0; o.x0 = x; o.y0 = y; o === NP ? redrawNP() : redrawOP(); } };
     c.onmousedown=e=>start(e.offsetX, e.offsetY);
     window.onmouseup=()=>o.drag=false;
     c.onmousemove=e=>move(e.offsetX, e.offsetY);
-    c.ontouchstart=e=>{ if(e.touches.length===1) start(e.touches[0].clientX, e.touches[0].clientY); };
-    c.ontouchmove=e=>{ if(o.drag && e.touches.length===1) { move(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); } };
-    c.ontouchend=()=>o.drag=false;
 }
 
 makeDraggable(NP); makeDraggable(OP);
-window.onload = () => { drawGrid(NP.ctx, NP.ox, NP.oy, NP.scale, true); drawGrid(OP.ctx, OP.ox, OP.oy, OP.scale, false); };
+window.onload = () => { drawGrid(NP.ctx, NP.ox, NP.oy, NP.scale, true); drawGrid(OP.ctx, OP.ox, OP.oy, OP.scale, true); };
 </script>
 </body>
 </html>
