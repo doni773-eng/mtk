@@ -53,7 +53,7 @@ canvas:active{cursor: grabbing;}
 
 <div class="card">
 <h3>4️⃣ Operasi Vektor (Animasi)</h3>
-<p><small><i>Sumbu koordinat disembunyikan untuk visualisasi metode poligon yang lebih bersih.</i></small></p>
+<p><small><i>Sumbu koordinat disembunyikan untuk visualisasi metode poligon.</i></small></p>
 \(\vec{a}\) = (<input id="ax2" placeholder="ax"> , <input id="ay2" placeholder="ay">)<br>
 \(\vec{b}\) = (<input id="bx2" placeholder="bx"> , <input id="by2" placeholder="by">)<br>
 <button onclick="jumlah()">a + b</button>
@@ -129,7 +129,7 @@ let OP=setupCanvas("kanvasOP");
 let dataOP=null;
 let animIdOP = null;
 
-/* ===== DRAW GRID & AXES (DENGAN TOGGLE SUMBU) ===== */
+/* ===== DRAW GRID & AXES ===== */
 function drawGrid(ctx, ox, oy, scale, showAxes = true){
     const w = ctx.canvas.width;
     const h = ctx.canvas.height;
@@ -139,39 +139,28 @@ function drawGrid(ctx, ox, oy, scale, showAxes = true){
     ctx.textAlign="start";
     ctx.textBaseline="top";
 
-    // Garis Vertikal & Angka X
     let startX = ox % scale;
     for(let x = startX; x < w; x += scale){
         ctx.strokeStyle = "#ddd";
         ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
-        
         if(showAxes) {
             let valX = Math.round((x - ox) / scale);
-            if(valX !== 0) {
-                ctx.fillStyle = "#888";
-                ctx.fillText(valX, x + 2, oy + 2);
-            }
+            if(valX !== 0) { ctx.fillStyle = "#888"; ctx.fillText(valX, x + 2, oy + 2); }
         }
     }
 
-    // Garis Horizontal & Angka Y
     let startY = oy % scale;
     for(let y = startY; y < h; y += scale){
         ctx.strokeStyle = "#ddd";
         ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-        
         if(showAxes) {
             let valY = Math.round((oy - y) / scale);
-            if(valY !== 0) {
-                ctx.fillStyle = "#888";
-                ctx.fillText(valY, ox + 2, y + 2);
-            }
+            if(valY !== 0) { ctx.fillStyle = "#888"; ctx.fillText(valY, ox + 2, y + 2); }
         }
     }
 
-    // Sumbu Utama (X & Y Axis) - Hanya jika showAxes true
     if(showAxes) {
         ctx.strokeStyle="#000"; ctx.lineWidth=1.5;
         ctx.beginPath(); ctx.moveTo(0, oy); ctx.lineTo(w, oy); ctx.stroke();
@@ -180,25 +169,40 @@ function drawGrid(ctx, ox, oy, scale, showAxes = true){
     }
 }
 
-/* ===== DRAW VECTOR ===== */
+/* ===== DRAW VECTOR (ANGKA DI TENAH) ===== */
 function drawVector(ctx,ox,oy,scale,x1,y1,x2,y2,color,label, progress = 1.0){
     let curX2 = x1 + (x2 - x1) * progress;
     let curY2 = y1 + (y2 - y1) * progress;
     let X1=ox+x1*scale, Y1=oy-y1*scale;
     let X2=ox+curX2*scale, Y2=oy-curY2*scale;
 
+    // Gambar Garis Vektor
     ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=2;
     ctx.beginPath(); ctx.moveTo(X1,Y1); ctx.lineTo(X2,Y2); ctx.stroke();
 
+    // Gambar Panah
     let head=8*(scale/30), a=Math.atan2(Y2-Y1,X2-X1);
     ctx.beginPath(); ctx.moveTo(X2,Y2);
     ctx.lineTo(X2-head*Math.cos(a-Math.PI/6), Y2-head*Math.sin(a-Math.PI/6));
     ctx.lineTo(X2-head*Math.cos(a+Math.PI/6), Y2-head*Math.sin(a+Math.PI/6));
     ctx.closePath(); ctx.fill();
 
+    // Gambar Label di Tengah-Tengah Garis
     if(progress >= 1.0) {
-        ctx.font="bold 12px Arial";
-        ctx.fillText(label, (X1+X2)/2 + 5, (Y1+Y2)/2 - 5);
+        let midX = (X1 + X2) / 2;
+        let midY = (Y1 + Y2) / 2;
+
+        ctx.font="bold 13px Arial";
+        ctx.textAlign="center";
+        ctx.textBaseline="middle";
+
+        // Efek Halo/Glow putih agar teks terbaca di atas garis
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 3;
+        ctx.strokeText(label, midX, midY);
+        
+        ctx.fillStyle = color;
+        ctx.fillText(label, midX, midY);
     }
 }
 
@@ -230,7 +234,7 @@ function animateNP() {
 
 function redrawOP(){
     if(animIdOP) cancelAnimationFrame(animIdOP);
-    drawGrid(OP.ctx, OP.ox, OP.oy, OP.scale, false); // Sumbu dimatikan
+    drawGrid(OP.ctx, OP.ox, OP.oy, OP.scale, false);
     if(!dataOP) return;
     let dx = (dataOP.t==="+" ? dataOP.a.x + dataOP.b.x : dataOP.a.x - dataOP.b.x);
     let dy = (dataOP.t==="+" ? dataOP.a.y + dataOP.b.y : dataOP.a.y - dataOP.b.y);
@@ -248,7 +252,7 @@ function animateOP() {
         if(!start) start = ts;
         let p = (ts - start) / 1500;
         if(p > 1) p = 1;
-        drawGrid(OP.ctx, OP.ox, OP.oy, OP.scale, false); // Sumbu dimatikan
+        drawGrid(OP.ctx, OP.ox, OP.oy, OP.scale, false);
         drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,0,0,dataOP.a.x,dataOP.a.y,"blue","a", Math.min(1, p*3));
         if(p > 0.33) drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,dataOP.a.x,dataOP.a.y,dx,dy,"green",dataOP.t==="+"?"b":"-b", Math.min(1, (p-0.33)*3));
         if(p > 0.66) drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,0,0,dx,dy,"red","hasil", Math.min(1, (p-0.66)*3));
@@ -264,12 +268,7 @@ function nonPosisi(){
         let b={x:ambilNilai('obx'), y:ambilNilai('oby')};
         dataNP={a,b};
         let dx=b.x-a.x, dy=b.y-a.y;
-        
-        let langkah=`Langkah mencari vektor AB:<br>`;
-        langkah+=`1. Komponen x: ${b.x} - ${a.x} = ${dx}<br>`;
-        langkah+=`2. Komponen y: ${b.y} - ${a.y} = ${dy}<br>`;
-        langkah+=`3. Hasil: \\( \\vec{AB} \\) = ${vHTML(dx,dy)}`;
-        
+        let langkah=`Langkah mencari vektor AB:<br>1. Komponen x: ${b.x} - ${a.x} = ${dx}<br>2. Komponen y: ${b.y} - ${a.y} = ${dy}<br>3. Hasil: \\( \\vec{AB} \\) = ${vHTML(dx,dy)}`;
         hasilAB.innerHTML=langkah;
         MathJax.typeset(); animateNP();
     } catch(e) {}
@@ -285,14 +284,8 @@ function setupOPData(tipe){
         dataOP={a,b,t:tipe};
         let dx = (tipe==="+" ? a.x + b.x : a.x - b.x);
         let dy = (tipe==="+" ? a.y + b.y : a.y - b.y);
-        let opText = tipe==="+" ? "Penjumlahan" : "Pengurangan";
         let opSign = tipe==="+" ? "+" : "-";
-        
-        let langkah=`Langkah ${opText} Vektor:<br>`;
-        langkah+=`1. Komponen x: ${a.x} ${opSign} ${b.x} = ${dx}<br>`;
-        langkah+=`2. Komponen y: ${a.y} ${opSign} ${b.y} = ${dy}<br>`;
-        langkah+=`3. Hasil: \\( \\vec{a} ${opSign} \\vec{b} \\) = ${vHTML(dx,dy)}`;
-        
+        let langkah=`Langkah ${tipe==="+"?"Penjumlahan":"Pengurangan"}:<br>1. Komponen x: ${a.x} ${opSign} ${b.x} = ${dx}<br>2. Komponen y: ${a.y} ${opSign} ${b.y} = ${dy}<br>3. Hasil: \\( \\vec{a} ${opSign} \\vec{b} \\) = ${vHTML(dx,dy)}`;
         hasilJumlah.innerHTML=langkah;
         MathJax.typeset(); animateOP();
     } catch(e) {}
@@ -321,10 +314,7 @@ function makeDraggable(o){
 }
 
 makeDraggable(NP); makeDraggable(OP);
-window.onload = () => { 
-    drawGrid(NP.ctx, NP.ox, NP.oy, NP.scale, true); 
-    drawGrid(OP.ctx, OP.ox, OP.oy, OP.scale, false); // Awal sumbu mati untuk OP
-};
+window.onload = () => { drawGrid(NP.ctx, NP.ox, NP.oy, NP.scale, true); drawGrid(OP.ctx, OP.ox, OP.oy, OP.scale, false); };
 </script>
 </body>
 </html>
