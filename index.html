@@ -137,23 +137,47 @@ function drawGrid(ctx,ox,oy,scale){
     ctx.beginPath(); ctx.moveTo(ox,0); ctx.lineTo(ox,ctx.canvas.height); ctx.stroke();
 }
 
-/* ===== DRAW VECTOR ===== */
+/* ===== DRAW VECTOR (LABEL RAPI & KONTRAS) ===== */
 function drawVector(ctx,ox,oy,scale,x1,y1,x2,y2,color,label){
-    let X1=ox+x1*scale,Y1=oy-y1*scale;
-    let X2=ox+x2*scale,Y2=oy-y2*scale;
-    ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=2;
-    ctx.beginPath(); ctx.moveTo(X1,Y1); ctx.lineTo(X2,Y2); ctx.stroke();
+    let X1=ox+x1*scale, Y1=oy-y1*scale;
+    let X2=ox+x2*scale, Y2=oy-y2*scale;
+
+    // garis vektor
+    ctx.strokeStyle=color;
+    ctx.fillStyle=color;
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.moveTo(X1,Y1);
+    ctx.lineTo(X2,Y2);
+    ctx.stroke();
+
     // arrowhead
-    let h=10*(scale/30),a=Math.atan2(Y2-Y1,X2-X1);
+    let h=10*(scale/30), a=Math.atan2(Y2-Y1,X2-X1);
     ctx.beginPath();
     ctx.moveTo(X2,Y2);
     ctx.lineTo(X2-h*Math.cos(a-Math.PI/6),Y2-h*Math.sin(a-Math.PI/6));
     ctx.lineTo(X2-h*Math.cos(a+Math.PI/6),Y2-h*Math.sin(a+Math.PI/6));
-    ctx.closePath(); ctx.fill();
-    // label
-    ctx.font=`${12*(scale/30)}px Arial`; ctx.fillStyle="#000";
-    ctx.fillText(label,(X1+X2)/2+5,(Y1+Y2)/2-5);
+    ctx.closePath();
+    ctx.fill();
+
+    // ===== LABEL RAPI =====
+    let mx=(X1+X2)/2, my=(Y1+Y2)/2;
+    let fs=12*(scale/30);
+    ctx.font=`bold ${fs}px Arial`;
+    let pad=4;
+    let w=ctx.measureText(label).width;
+
+    // background putih transparan
+    ctx.fillStyle="rgba(255,255,255,0.85)";
+    ctx.fillRect(mx-w/2-pad, my-fs-pad, w+pad*2, fs+pad*2);
+
+    // teks sesuai warna panah
+    ctx.fillStyle=color;
+    ctx.textAlign="center";
+    ctx.textBaseline="middle";
+    ctx.fillText(label, mx, my);
 }
+
 
 /* ===== REDRAW NP ===== */
 function redrawNP(){
@@ -164,38 +188,60 @@ function redrawNP(){
     drawVector(NP.ctx,NP.ox,NP.oy,NP.scale,dataNP.a.x,dataNP.a.y,dataNP.b.x,dataNP.b.y,"red","AB");
 }
 
-/* ===== REDRAW OP ===== */
-/* ===== REDRAW OP (ARAH PANAH HEAD-TO-TAIL) ===== */
+/* ===== REDRAW OP (GRID ADA, SUMBU HILANG) ===== */
 function redrawOP(){
-    drawGrid(OP.ctx,OP.ox,OP.oy,OP.scale);
+    // gambar grid MANUAL tanpa sumbu
+    let ctx = OP.ctx;
+    let {ox,oy,scale} = OP;
+
+    ctx.clearRect(0,0,OP.c.width,OP.c.height);
+    ctx.strokeStyle="#ddd";
+    ctx.lineWidth=1;
+    ctx.font="12px Arial";
+
+    // garis vertikal
+    for(let i=-50;i<=50;i++){
+        ctx.beginPath();
+        ctx.moveTo(ox+i*scale,0);
+        ctx.lineTo(ox+i*scale,ctx.canvas.height);
+        ctx.stroke();
+    }
+
+    // garis horizontal
+    for(let j=-50;j<=50;j++){
+        ctx.beginPath();
+        ctx.moveTo(0,oy-j*scale);
+        ctx.lineTo(ctx.canvas.width,oy-j*scale);
+        ctx.stroke();
+    }
+
     if(!dataOP) return;
 
     let {a,b,t}=dataOP;
     let dx = (t==="+" ? a.x + b.x : a.x - b.x);
     let dy = (t==="+" ? a.y + b.y : a.y - b.y);
 
-    // a dari (0,0)
-    drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,
+    // vektor a
+    drawVector(ctx,ox,oy,scale,
         0,0,
         a.x,a.y,
         "blue","a"
     );
 
-    // b / -b DITEMPEL di ujung a
-    drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,
+    // vektor b / -b ditempel di ujung a
+    drawVector(ctx,ox,oy,scale,
         a.x,a.y,
         dx,dy,
         "green", t==="+" ? "b" : "-b"
     );
 
-    // hasil dari (0,0)
-    drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,
+    // vektor hasil
+    drawVector(ctx,ox,oy,scale,
         0,0,
         dx,dy,
         "red","hasil"
     );
 }
-
 
 /* ===== NP Function ===== */
 function nonPosisi(){
