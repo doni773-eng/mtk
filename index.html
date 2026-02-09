@@ -18,7 +18,7 @@ padding:8px 14px;border:none;border-radius:6px;
 background:#007bff;color:#fff;margin:3px
 }
 .result{margin-top:10px;background:#eef;padding:10px;border-radius:6px;word-wrap:break-word;}
-canvas{border:1px solid #ccc;background:#fff;width:100%;max-width:460px}
+canvas{border:1px solid #ccc;background:#fff;width:100%;max-width:100%;}
 .controls{text-align:center;margin-top:8px}
 
 .vektor{
@@ -59,7 +59,7 @@ OB = (<input id="obx"> , <input id="oby">)</br>
 <button onclick="nonPosisi()">Hitung dan Gambar</button>
 <div class="result" id="hasilAB"></div>
 
-<canvas id="kanvasNP" width="460" height="460"></canvas>
+<canvas id="kanvasNP"></canvas>
 <div class="controls">
 Zoom:
 <input type="range" id="zoomNP" min="10" max="80" value="30">
@@ -77,7 +77,7 @@ Silahkan Pilih Operasi vektornya<br>
 <button onclick="kurang()">a − b</button>
 <div class="result" id="hasilJumlah"></div>
 
-<canvas id="kanvasOP" width="460" height="460"></canvas>
+<canvas id="kanvasOP"></canvas>
 <div class="controls">
 Zoom:
 <input type="range" id="zoomOP" min="10" max="80" value="30">
@@ -88,15 +88,11 @@ Zoom:
 <script>
 /* ===== FUNSI VEKTOR DENGAN KURUNG DYNAMIC ===== */
 function vHTML(x,y){
-    // Hitung panjang angka
     let lenX = x.toString().length;
     let lenY = y.toString().length;
     let maxLen = Math.max(lenX,lenY);
-
-    // Sesuaikan skala kurung (1.2 normal, tambah 0.1 tiap 2 digit lebih)
     let scale = 1.2 + (maxLen-1)*0.08;
-    if(scale>2) scale=2; // batasi maksimal
-
+    if(scale>2) scale=2;
     return `<span class="vektor">
         <span class="kurung" style="transform: scaleX(${scale})">(</span>
         <span class="isi"><span>${x}</span><span>${y}</span></span>
@@ -168,30 +164,73 @@ function kurang(){
     redraw();
 }
 
-/* ===== SETUP KANVAS ===== */
+/* ===== SETUP KANVAS MOBILE-FRIENDLY ===== */
 function setup(c){
-let o={c,ctx:c.getContext("2d"),scale:30,ox:c.width/2,oy:c.height/2,drag:false,x:0,y:0};
-c.onmousedown=e=>{o.drag=true;o.x=e.offsetX;o.y=e.offsetY};
-c.onmouseup=()=>o.drag=false;
-c.onmouseleave=()=>o.drag=false;
-c.onmousemove=e=>{
-if(!o.drag)return;
-o.ox+=e.offsetX-o.x;
-o.oy+=e.offsetY-o.y;
-o.x=e.offsetX;o.y=e.offsetY;
-redraw();
-};
-return o;
+    let o={c,ctx:c.getContext("2d"),scale:30,ox:c.width/2,oy:c.height/2,drag:false,x:0,y:0};
+
+    // Mouse events
+    c.onmousedown=e=>{o.drag=true;o.x=e.offsetX;o.y=e.offsetY;};
+    c.onmouseup=()=>o.drag=false;
+    c.onmouseleave=()=>o.drag=false;
+    c.onmousemove=e=>{
+        if(!o.drag) return;
+        o.ox += e.offsetX-o.x;
+        o.oy += e.offsetY-o.y;
+        o.x=e.offsetX;o.y=e.offsetY;
+        redraw();
+    };
+
+    // Touch events untuk HP
+    c.ontouchstart=e=>{
+        e.preventDefault();
+        if(e.touches.length==1){
+            let t = e.touches[0];
+            let rect = c.getBoundingClientRect();
+            o.drag=true;
+            o.x = t.clientX - rect.left;
+            o.y = t.clientY - rect.top;
+        }
+    };
+    c.ontouchmove=e=>{
+        e.preventDefault();
+        if(o.drag && e.touches.length==1){
+            let t = e.touches[0];
+            let rect = c.getBoundingClientRect();
+            let x2 = t.clientX - rect.left;
+            let y2 = t.clientY - rect.top;
+            o.ox += x2 - o.x;
+            o.oy += y2 - o.y;
+            o.x = x2; o.y = y2;
+            redraw();
+        }
+    };
+    c.ontouchend=()=>{o.drag=false;};
+    c.ontouchcancel=()=>{o.drag=false;};
+
+    return o;
 }
+
 let NP=setup(kanvasNP);
 let OP=setup(kanvasOP);
 let dataNP=null,dataOP=null;
+
+/* ===== RESPONSIVE CANVAS ===== */
+function resizeCanvas(){
+    let canvases = [kanvasNP, kanvasOP];
+    canvases.forEach(c=>{
+        c.width = c.parentElement.clientWidth;
+        c.height = c.parentElement.clientWidth; // kotak proporsional
+    });
+    redraw();
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
 
 /* ===== ZOOM ===== */
 zoomNP.oninput=()=>{NP.scale=+zoomNP.value;zNP.textContent=zoomNP.value;redraw();}
 zoomOP.oninput=()=>{OP.scale=+zoomOP.value;zOP.textContent=zoomOP.value;redraw();}
 
-/* ===== GRID NON POSISI ===== */
+/* ===== GRID ===== */
 function gridNP(o){
 let {ctx,c,scale,ox,oy}=o;
 ctx.clearRect(0,0,c.width,c.height);
@@ -214,7 +253,6 @@ ctx.beginPath();ctx.moveTo(0,oy);ctx.lineTo(c.width,oy);ctx.stroke();
 ctx.beginPath();ctx.moveTo(ox,0);ctx.lineTo(ox,c.height);ctx.stroke();
 }
 
-/* ===== GRID OPERASI ===== */
 function gridOP(o){
 let {ctx,c,scale,ox,oy}=o;
 ctx.clearRect(0,0,c.width,c.height);
@@ -240,32 +278,40 @@ ctx.stroke();
 ctx.lineWidth=1;
 }
 
-/* ===== VEKTOR DIKANVAS ===== */
+/* ===== VEKTOR ===== */
 function vec(o,x1,y1,x2,y2,col,lbl){
-let {ctx,scale,ox,oy}=o;
-let X1=ox+x1*scale,Y1=oy-y1*scale;
-let X2=ox+x2*scale,Y2=oy-y2*scale;
-ctx.strokeStyle=col;ctx.fillStyle=col;
-ctx.beginPath();ctx.moveTo(X1,Y1);ctx.lineTo(X2,Y2);ctx.stroke();
-let h=10,a=Math.atan2(Y2-Y1,X2-X1);
-ctx.beginPath();
-ctx.moveTo(X2,Y2);
-ctx.lineTo(X2-h*Math.cos(a-Math.PI/6),Y2-h*Math.sin(a-Math.PI/6));
-ctx.lineTo(X2-h*Math.cos(a+Math.PI/6),Y2-h*Math.sin(a+Math.PI/6));
-ctx.fill();
-ctx.fillText(lbl,(X1+X2)/2+5,(Y1+Y2)/2);
+    let {ctx,scale,ox,oy}=o;
+    let X1=ox+x1*scale,Y1=oy-y1*scale;
+    let X2=ox+x2*scale,Y2=oy-y2*scale;
+
+    ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(X1,Y1); ctx.lineTo(X2,Y2); ctx.stroke();
+
+    let h = 10*(scale/30);
+    let a = Math.atan2(Y2-Y1,X2-X1);
+    ctx.beginPath();
+    ctx.moveTo(X2,Y2);
+    ctx.lineTo(X2-h*Math.cos(a-Math.PI/6),Y2-h*Math.sin(a-Math.PI/6));
+    ctx.lineTo(X2-h*Math.cos(a+Math.PI/6),Y2-h*Math.sin(a+Math.PI/6));
+    ctx.fill();
+
+    let fontSize = 12*(scale/30);
+    ctx.font = `${fontSize}px Arial`;
+    let offset = 5*(scale/30);
+    if(Math.abs(X2-X1)<30 && Math.abs(Y2-Y1)<30){ offset += 10; }
+    ctx.fillStyle = "#000";
+    ctx.fillText(lbl,(X1+X2)/2 + offset,(Y1+Y2)/2 - offset);
 }
 
 /* ===== DRAW ===== */
 function redraw(){
-/* Non Posisi */
 gridNP(NP);
 if(dataNP){
 vec(NP,0,0,dataNP.a.x,dataNP.a.y,"blue","OA");
 vec(NP,0,0,dataNP.b.x,dataNP.b.y,"green","OB");
 vec(NP,dataNP.a.x,dataNP.a.y,dataNP.b.x,dataNP.b.y,"red","AB");
 }
-/* Operasi */
+
 gridOP(OP);
 if(dataOP){
 let {a,b,t}=dataOP;
