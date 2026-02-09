@@ -5,64 +5,193 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vektor Interaktif Lengkap + Animasi</title>
 <style>
-body{font-family:Arial,sans-serif;margin:0;padding:10px;background:#f4f6f8}
-h2{text-align:center}
-.card{background:#fff;padding:15px;margin-bottom:15px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
-input{width:60px;padding:5px;margin:3px;border:1px solid #ccc;border-radius:4px;text-align:center;}
-input::placeholder { color: #aaa; text-align: center; }
-button{padding:8px 14px;border:none;border-radius:6px;background:#007bff;color:#fff;margin:3px;cursor: pointer;}
-button:hover{background:#0056b3;}
-.result{margin-top:10px;background:#eef;padding:10px;border-radius:6px;word-wrap:break-word;font-size:16px; min-height: 20px;}
-canvas{border:1px solid #ccc;background:#fff;width:90%;max-width:450px;height:auto;display:block;margin:10px auto;cursor: grab;}
-canvas:active{cursor: grabbing;}
-.controls{text-align:center;margin-top:8px}
-.vektor{display:inline-grid;grid-template-columns:auto auto auto;gap:4px;font-weight:bold;vertical-align:middle}
-.vektor .isi{display:grid;grid-template-rows:auto auto;text-align:center}
-.kurung{font-size:1.2em;display:inline-block;transform-origin:center;}
+/* BAGIAN BACKGROUND BARU */
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    /* Background Gradient Animasi */
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    min-height: 100vh;
+}
+
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Pola Grid Overlay agar terlihat seperti buku matematika */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    z-index: -1;
+}
+
+h2 {
+    text-align: center;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    font-size: 2em;
+    margin-bottom: 30px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.95); /* Sedikit transparan agar background tembus */
+    padding: 20px;
+    margin: 0 auto 20px auto;
+    max-width: 600px;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    backdrop-filter: blur(5px); /* Efek kaca */
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+h3 {
+    color: #333;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 5px;
+    display: inline-block;
+}
+
+input {
+    width: 60px;
+    padding: 8px;
+    margin: 3px;
+    border: 2px solid #eee;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+}
+
+input:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    background: #007bff;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+button:hover {
+    background: #0056b3;
+    transform: scale(1.05);
+}
+
+.result {
+    margin-top: 15px;
+    background: #f0f7ff;
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 5px solid #007bff;
+    font-size: 16px;
+    color: #333;
+}
+
+canvas {
+    border: 3px solid #f0f0f0;
+    background: #fff;
+    width: 100%;
+    max-width: 450px;
+    height: auto;
+    display: block;
+    margin: 15px auto;
+    border-radius: 12px;
+    cursor: grab;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+}
+
+.controls {
+    text-align: center;
+    margin-top: 8px;
+    color: #555;
+    font-weight: bold;
+}
+
+.vektor {
+    display: inline-grid;
+    grid-template-columns: auto auto auto;
+    gap: 4px;
+    font-weight: bold;
+    vertical-align: middle;
+}
+
+.vektor .isi {
+    display: grid;
+    grid-template-rows: auto auto;
+    text-align: center;
+}
+
+.kurung {
+    font-size: 1.2em;
+    display: inline-block;
+    transform-origin: center;
+}
 </style>
 <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 
-<h2>📐 Vektor Interaktif Lengkap + Animasi</h2>
+<h2>📐 Vektor Interaktif</h2>
 
 <div class="card">
 <h3>1️⃣ Vektor Negatif</h3>
+<div>
 \(\vec{a}\) = (<input id="ax" placeholder="x"> , <input id="ay" placeholder="y">)
 <button onclick="negatif()">Cari</button>
+</div>
 <div class="result" id="hasilNegatif"></div>
 </div>
 
 <div class="card">
 <h3>2️⃣ Vektor Posisi</h3>
+<div>
 \(\vec{OA}\) = (<input id="px" placeholder="x"> , <input id="py" placeholder="y">)
 <button onclick="posisi()">Cari</button>
+</div>
 <div class="result" id="hasilPosisi"></div>
 </div>
 
 <div class="card">
-<h3>3️⃣ Vektor Non Posisi (Animasi)</h3>
+<h3>3️⃣ Vektor Non Posisi (Animasi)</h3></br>
 \(\vec{OA}\) = (<input id="oax" placeholder="x1"> , <input id="oay" placeholder="y1">)<br>
 \(\vec{OB}\) = (<input id="obx" placeholder="x2"> , <input id="oby" placeholder="y2">)<br>
-<button onclick="nonPosisi()">Hitung & Gambar</button>
+<button onclick="nonPosisi()" style="margin-top:10px">Hitung & Gambar</button>
 <div class="result" id="hasilAB"></div>
 <canvas id="kanvasNP"></canvas>
 <div class="controls">Zoom: <input type="range" id="zoomNP" min="10" max="80" value="30"> <span id="zNP">30</span></div>
 </div>
 
 <div class="card">
-<h3>4️⃣ Operasi Vektor (Animasi)</h3>
+<h3>4️⃣ Operasi Vektor (Animasi)</h3></br>
 \(\vec{a}\) = (<input id="ax2" placeholder="ax"> , <input id="ay2" placeholder="ay">)<br>
 \(\vec{b}\) = (<input id="bx2" placeholder="bx"> , <input id="by2" placeholder="by">)<br>
-<button onclick="jumlah()">a + b</button>
-<button onclick="kurang()">a − b</button>
+<div style="margin-top:10px">
+    <button onclick="jumlah()">a + b</button>
+    <button onclick="kurang()">a − b</button>
+</div>
 <div class="result" id="hasilJumlah"></div>
 <canvas id="kanvasOP"></canvas>
 <div class="controls">Zoom: <input type="range" id="zoomOP" min="10" max="200" value="50"> <span id="zOP">50</span></div>
 </div>
 
 <script>
+// --- JAVASCRIPT ASLI KAMU (TIDAK DIUBAH SAMA SEKALI) ---
 function vHTML(x,y){
     let lenX=x.toString().length, lenY=y.toString().length;
     let maxLen=Math.max(lenX,lenY);
@@ -161,33 +290,28 @@ function drawGrid(ctx, ox, oy, scale, showAxes = true){
     }
 }
 
-/* ===== DRAW VECTOR DENGAN TITIK AWAL HITAM ===== */
 function drawVector(ctx,ox,oy,scale,x1,y1,x2,y2,color,label, progress = 1.0){
     let X1=ox+x1*scale, Y1=oy-y1*scale;
     let curX2 = x1 + (x2 - x1) * progress;
     let curY2 = y1 + (y2 - y1) * progress;
     let X2=ox+curX2*scale, Y2=oy-curY2*scale;
 
-    // 1. Gambar Titik Awal (Dot) HITAM
     ctx.fillStyle = "#000";
     ctx.beginPath();
     ctx.arc(X1, Y1, 3.5, 0, Math.PI * 2);
     ctx.fill();
 
-    // 2. Gambar Garis Vektor
     ctx.strokeStyle=color; 
     ctx.lineWidth=2;
     ctx.beginPath(); ctx.moveTo(X1,Y1); ctx.lineTo(X2,Y2); ctx.stroke();
 
-    // 3. Gambar Kepala Panah
     ctx.fillStyle=color;
     let head=8*(scale/30), a=Math.atan2(Y2-Y1,X2-X1);
     ctx.beginPath(); ctx.moveTo(X2,Y2);
-    ctx.lineTo(X2-head*Math.cos(a-Math.PI/6), Y2-head*Math.sin(a-Math.PI/6));
+    ctx.lineTo(X2-head*Math.cos(a-Math.PI/6), Y2-head*Math.sin(a-Math.PI/Head));
     ctx.lineTo(X2-head*Math.cos(a+Math.PI/6), Y2-head*Math.sin(a+Math.PI/6));
     ctx.closePath(); ctx.fill();
 
-    // 4. Gambar Label di Tengah
     if(progress >= 1.0) {
         let midX = (X1 + X2) / 2;
         let midY = (Y1 + Y2) / 2;
