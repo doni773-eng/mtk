@@ -17,7 +17,7 @@ button{
 padding:8px 14px;border:none;border-radius:6px;
 background:#007bff;color:#fff;margin:3px
 }
-.result{margin-top:10px;background:#eef;padding:10px;border-radius:6px}
+.result{margin-top:10px;background:#eef;padding:10px;border-radius:6px;word-wrap:break-word;}
 canvas{border:1px solid #ccc;background:#fff;width:100%;max-width:460px}
 .controls{text-align:center;margin-top:8px}
 
@@ -27,7 +27,7 @@ grid-template-columns:auto auto auto;
 gap:6px;font-weight:bold
 }
 .vektor .isi{display:grid;grid-template-rows:repeat(0,auto);text-align:center}
-.kurung{transform:scalex(1.4);font-size:1.2em}
+.kurung{font-size:1.2em;display:inline-block;transform-origin:center;}
 </style>
 </head>
 
@@ -86,11 +86,22 @@ Zoom:
 </div>
 
 <script>
+/* ===== FUNSI VEKTOR DENGAN KURUNG DYNAMIC ===== */
 function vHTML(x,y){
-return `<span class="vektor">
-<span class="kurung">(</span>
-<span class="isi"><span>${x}</span><span>${y}</span></span>
-<span class="kurung">)</span></span>`;
+    // Hitung panjang angka
+    let lenX = x.toString().length;
+    let lenY = y.toString().length;
+    let maxLen = Math.max(lenX,lenY);
+
+    // Sesuaikan skala kurung (1.2 normal, tambah 0.1 tiap 2 digit lebih)
+    let scale = 1.2 + (maxLen-1)*0.08;
+    if(scale>2) scale=2; // batasi maksimal
+
+    return `<span class="vektor">
+        <span class="kurung" style="transform: scaleX(${scale})">(</span>
+        <span class="isi"><span>${x}</span><span>${y}</span></span>
+        <span class="kurung" style="transform: scaleX(${scale})">)</span>
+    </span>`;
 }
 
 /* ===== VEKTOR DASAR DENGAN LANGKAH ===== */
@@ -129,7 +140,6 @@ function nonPosisi(){
     redraw();
 }
 
-/* ===== OPERASI VEKTOR DENGAN LANGKAH ===== */
 function jumlah(){
     let a={x:+ax2.value,y:+ay2.value};
     let b={x:+bx2.value,y:+by2.value};
