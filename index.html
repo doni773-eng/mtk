@@ -8,14 +8,35 @@
 body{font-family:Arial,sans-serif;margin:0;padding:10px;background:#f4f6f8}
 h2{text-align:center}
 .card{background:#fff;padding:15px;margin-bottom:15px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
-input{width:60px;padding:5px;margin:3px;border:1px solid #ccc;border-radius:4px;}
+
+/* MODIFIKASI: Membuat angka input berada tepat di tengah kotak */
+input{
+    width:60px;
+    padding:5px;
+    margin:3px;
+    border:1px solid #ccc;
+    border-radius:4px;
+    text-align: center; /* Angka yang diketik akan berada di tengah */
+}
+
 input::placeholder { color: #aaa; text-align: center; }
 button{padding:8px 14px;border:none;border-radius:6px;background:#007bff;color:#fff;margin:3px;cursor: pointer;}
 button:hover{background:#0056b3;}
-.result{margin-top:10px;background:#eef;padding:10px;border-radius:6px;word-wrap:break-word;font-size:16px; min-height: 20px;}
+
+.result{
+    margin-top:10px;
+    background:#eef;
+    padding:10px;
+    border-radius:6px;
+    word-wrap:break-word;
+    font-size:16px; 
+    min-height: 20px;
+}
+
 canvas{border:1px solid #ccc;background:#fff;width:90%;max-width:450px;height:auto;display:block;margin:10px auto;cursor: grab;}
 canvas:active{cursor: grabbing;}
 .controls{text-align:center;margin-top:8px}
+
 .vektor{display:inline-grid;grid-template-columns:auto auto auto;gap:4px;font-weight:bold;vertical-align:middle}
 .vektor .isi{display:grid;grid-template-rows:auto auto;text-align:center}
 .kurung{font-size:1.2em;display:inline-block;transform-origin:center;}
@@ -169,38 +190,31 @@ function drawGrid(ctx, ox, oy, scale, showAxes = true){
     }
 }
 
-/* ===== DRAW VECTOR (ANGKA DI TENAH) ===== */
+/* ===== DRAW VECTOR (ANGKA DI TENGAH GARIS) ===== */
 function drawVector(ctx,ox,oy,scale,x1,y1,x2,y2,color,label, progress = 1.0){
     let curX2 = x1 + (x2 - x1) * progress;
     let curY2 = y1 + (y2 - y1) * progress;
     let X1=ox+x1*scale, Y1=oy-y1*scale;
     let X2=ox+curX2*scale, Y2=oy-curY2*scale;
 
-    // Gambar Garis Vektor
     ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=2;
     ctx.beginPath(); ctx.moveTo(X1,Y1); ctx.lineTo(X2,Y2); ctx.stroke();
 
-    // Gambar Panah
     let head=8*(scale/30), a=Math.atan2(Y2-Y1,X2-X1);
     ctx.beginPath(); ctx.moveTo(X2,Y2);
     ctx.lineTo(X2-head*Math.cos(a-Math.PI/6), Y2-head*Math.sin(a-Math.PI/6));
     ctx.lineTo(X2-head*Math.cos(a+Math.PI/6), Y2-head*Math.sin(a+Math.PI/6));
     ctx.closePath(); ctx.fill();
 
-    // Gambar Label di Tengah-Tengah Garis
     if(progress >= 1.0) {
         let midX = (X1 + X2) / 2;
         let midY = (Y1 + Y2) / 2;
-
         ctx.font="bold 13px Arial";
         ctx.textAlign="center";
         ctx.textBaseline="middle";
-
-        // Efek Halo/Glow putih agar teks terbaca di atas garis
         ctx.strokeStyle = "white";
         ctx.lineWidth = 3;
         ctx.strokeText(label, midX, midY);
-        
         ctx.fillStyle = color;
         ctx.fillText(label, midX, midY);
     }
