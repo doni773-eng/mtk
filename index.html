@@ -8,35 +8,14 @@
 body{font-family:Arial,sans-serif;margin:0;padding:10px;background:#f4f6f8}
 h2{text-align:center}
 .card{background:#fff;padding:15px;margin-bottom:15px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
-
-/* MODIFIKASI: Membuat angka input berada tepat di tengah kotak */
-input{
-    width:60px;
-    padding:5px;
-    margin:3px;
-    border:1px solid #ccc;
-    border-radius:4px;
-    text-align: center; /* Angka yang diketik akan berada di tengah */
-}
-
+input{width:60px;padding:5px;margin:3px;border:1px solid #ccc;border-radius:4px;text-align:center;}
 input::placeholder { color: #aaa; text-align: center; }
 button{padding:8px 14px;border:none;border-radius:6px;background:#007bff;color:#fff;margin:3px;cursor: pointer;}
 button:hover{background:#0056b3;}
-
-.result{
-    margin-top:10px;
-    background:#eef;
-    padding:10px;
-    border-radius:6px;
-    word-wrap:break-word;
-    font-size:16px; 
-    min-height: 20px;
-}
-
+.result{margin-top:10px;background:#eef;padding:10px;border-radius:6px;word-wrap:break-word;font-size:16px; min-height: 20px;}
 canvas{border:1px solid #ccc;background:#fff;width:90%;max-width:450px;height:auto;display:block;margin:10px auto;cursor: grab;}
 canvas:active{cursor: grabbing;}
 .controls{text-align:center;margin-top:8px}
-
 .vektor{display:inline-grid;grid-template-columns:auto auto auto;gap:4px;font-weight:bold;vertical-align:middle}
 .vektor .isi{display:grid;grid-template-rows:auto auto;text-align:center}
 .kurung{font-size:1.2em;display:inline-block;transform-origin:center;}
@@ -74,18 +53,16 @@ canvas:active{cursor: grabbing;}
 
 <div class="card">
 <h3>4️⃣ Operasi Vektor (Animasi)</h3>
-<p><small><i>Sumbu koordinat disembunyikan untuk visualisasi metode poligon.</i></small></p>
 \(\vec{a}\) = (<input id="ax2" placeholder="ax"> , <input id="ay2" placeholder="ay">)<br>
 \(\vec{b}\) = (<input id="bx2" placeholder="bx"> , <input id="by2" placeholder="by">)<br>
 <button onclick="jumlah()">a + b</button>
 <button onclick="kurang()">a − b</button>
 <div class="result" id="hasilJumlah"></div>
 <canvas id="kanvasOP"></canvas>
-<div class="controls">Zoom: <input type="range" id="zoomOP" min="10" max="80" value="30"> <span id="zOP">30</span></div>
+<div class="controls">Zoom: <input type="range" id="zoomOP" min="10" max="200" value="50"> <span id="zOP">50</span></div>
 </div>
 
 <script>
-/* ===== Fungsi Kurung Kolom ===== */
 function vHTML(x,y){
     let lenX=x.toString().length, lenY=y.toString().length;
     let maxLen=Math.max(lenX,lenY);
@@ -98,7 +75,6 @@ function vHTML(x,y){
     </span>`;
 }
 
-/* ===== Validasi Input ===== */
 function ambilNilai(id) {
     let val = document.getElementById(id).value;
     if (val.trim() === "") {
@@ -108,7 +84,6 @@ function ambilNilai(id) {
     return +val;
 }
 
-/* ===== VEKTOR NEGATIF ===== */
 function negatif(){
     try {
         let x=ambilNilai('ax'), y=ambilNilai('ay');
@@ -121,7 +96,6 @@ function negatif(){
     } catch(e) {}
 }
 
-/* ===== VEKTOR POSISI ===== */
 function posisi(){
     try {
         let x=ambilNilai('px'), y=ambilNilai('py');
@@ -133,7 +107,6 @@ function posisi(){
     } catch(e) {}
 }
 
-/* ===== CANVAS SETUP ===== */
 function setupCanvas(id){
     let c=document.getElementById(id);
     c.width=c.clientWidth;
@@ -150,12 +123,10 @@ let OP=setupCanvas("kanvasOP");
 let dataOP=null;
 let animIdOP = null;
 
-/* ===== DRAW GRID & AXES ===== */
 function drawGrid(ctx, ox, oy, scale, showAxes = true){
     const w = ctx.canvas.width;
     const h = ctx.canvas.height;
     ctx.clearRect(0, 0, w, h);
-    
     ctx.font="10px Arial";
     ctx.textAlign="start";
     ctx.textBaseline="top";
@@ -190,22 +161,33 @@ function drawGrid(ctx, ox, oy, scale, showAxes = true){
     }
 }
 
-/* ===== DRAW VECTOR (ANGKA DI TENGAH GARIS) ===== */
+/* ===== DRAW VECTOR DENGAN TITIK AWAL HITAM ===== */
 function drawVector(ctx,ox,oy,scale,x1,y1,x2,y2,color,label, progress = 1.0){
+    let X1=ox+x1*scale, Y1=oy-y1*scale;
     let curX2 = x1 + (x2 - x1) * progress;
     let curY2 = y1 + (y2 - y1) * progress;
-    let X1=ox+x1*scale, Y1=oy-y1*scale;
     let X2=ox+curX2*scale, Y2=oy-curY2*scale;
 
-    ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=2;
+    // 1. Gambar Titik Awal (Dot) HITAM
+    ctx.fillStyle = "#000";
+    ctx.beginPath();
+    ctx.arc(X1, Y1, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 2. Gambar Garis Vektor
+    ctx.strokeStyle=color; 
+    ctx.lineWidth=2;
     ctx.beginPath(); ctx.moveTo(X1,Y1); ctx.lineTo(X2,Y2); ctx.stroke();
 
+    // 3. Gambar Kepala Panah
+    ctx.fillStyle=color;
     let head=8*(scale/30), a=Math.atan2(Y2-Y1,X2-X1);
     ctx.beginPath(); ctx.moveTo(X2,Y2);
     ctx.lineTo(X2-head*Math.cos(a-Math.PI/6), Y2-head*Math.sin(a-Math.PI/6));
     ctx.lineTo(X2-head*Math.cos(a+Math.PI/6), Y2-head*Math.sin(a+Math.PI/6));
     ctx.closePath(); ctx.fill();
 
+    // 4. Gambar Label di Tengah
     if(progress >= 1.0) {
         let midX = (X1 + X2) / 2;
         let midY = (Y1 + Y2) / 2;
@@ -220,7 +202,6 @@ function drawVector(ctx,ox,oy,scale,x1,y1,x2,y2,color,label, progress = 1.0){
     }
 }
 
-/* ===== REDRAW & ANIMATION ===== */
 function redrawNP(){
     if(animIdNP) cancelAnimationFrame(animIdNP);
     drawGrid(NP.ctx, NP.ox, NP.oy, NP.scale, true);
@@ -260,30 +241,28 @@ function redrawOP(){
 function animateOP() {
     if(animIdOP) cancelAnimationFrame(animIdOP);
     let start = null;
-    let dx = (dataOP.t==="+" ? dataOP.a.x + dataOP.b.x : dataOP.a.x - dataOP.b.x);
-    let dy = (dataOP.t==="+" ? dataOP.a.y + dataOP.b.y : dataOP.a.y - dataOP.b.y);
     function step(ts) {
         if(!start) start = ts;
         let p = (ts - start) / 1500;
         if(p > 1) p = 1;
         drawGrid(OP.ctx, OP.ox, OP.oy, OP.scale, false);
+        let curDx = (dataOP.t==="+" ? dataOP.a.x + dataOP.b.x : dataOP.a.x - dataOP.b.x);
+        let curDy = (dataOP.t==="+" ? dataOP.a.y + dataOP.b.y : dataOP.a.y - dataOP.b.y);
         drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,0,0,dataOP.a.x,dataOP.a.y,"blue","a", Math.min(1, p*3));
-        if(p > 0.33) drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,dataOP.a.x,dataOP.a.y,dx,dy,"green",dataOP.t==="+"?"b":"-b", Math.min(1, (p-0.33)*3));
-        if(p > 0.66) drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,0,0,dx,dy,"red","hasil", Math.min(1, (p-0.66)*3));
+        if(p > 0.33) drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,dataOP.a.x,dataOP.a.y,curDx,curDy,"green",dataOP.t==="+"?"b":"-b", Math.min(1, (p-0.33)*3));
+        if(p > 0.66) drawVector(OP.ctx,OP.ox,OP.oy,OP.scale,0,0,curDx,curDy,"red","hasil", Math.min(1, (p-0.66)*3));
         if(p < 1) animIdOP = requestAnimationFrame(step);
     }
     animIdOP = requestAnimationFrame(step);
 }
 
-/* ===== FUNGSI HITUNG ===== */
 function nonPosisi(){
     try {
         let a={x:ambilNilai('oax'), y:ambilNilai('oay')};
         let b={x:ambilNilai('obx'), y:ambilNilai('oby')};
         dataNP={a,b};
         let dx=b.x-a.x, dy=b.y-a.y;
-        let langkah=`Langkah mencari vektor AB:<br>1. Komponen x: ${b.x} - ${a.x} = ${dx}<br>2. Komponen y: ${b.y} - ${a.y} = ${dy}<br>3. Hasil: \\( \\vec{AB} \\) = ${vHTML(dx,dy)}`;
-        hasilAB.innerHTML=langkah;
+        hasilAB.innerHTML=`Langkah mencari vektor AB:<br>1. Komponen x: ${b.x} - ${a.x} = ${dx}<br>2. Komponen y: ${b.y} - ${a.y} = ${dy}<br>Hasil: \\( \\vec{AB} \\) = ${vHTML(dx,dy)}`;
         MathJax.typeset(); animateNP();
     } catch(e) {}
 }
@@ -299,13 +278,11 @@ function setupOPData(tipe){
         let dx = (tipe==="+" ? a.x + b.x : a.x - b.x);
         let dy = (tipe==="+" ? a.y + b.y : a.y - b.y);
         let opSign = tipe==="+" ? "+" : "-";
-        let langkah=`Langkah ${tipe==="+"?"Penjumlahan":"Pengurangan"}:<br>1. Komponen x: ${a.x} ${opSign} ${b.x} = ${dx}<br>2. Komponen y: ${a.y} ${opSign} ${b.y} = ${dy}<br>3. Hasil: \\( \\vec{a} ${opSign} \\vec{b} \\) = ${vHTML(dx,dy)}`;
-        hasilJumlah.innerHTML=langkah;
+        hasilJumlah.innerHTML=`Langkah ${tipe==="+"?"Jumlah":"Kurang"}:<br>1. x: ${a.x} ${opSign} ${b.x} = ${dx}<br>2. y: ${a.y} ${opSign} ${b.y} = ${dy}<br>Hasil: ${vHTML(dx,dy)}`;
         MathJax.typeset(); animateOP();
     } catch(e) {}
 }
 
-/* ===== DRAG & ZOOM ===== */
 zoomNP.oninput=()=>{NP.scale=+zoomNP.value; zNP.textContent=zoomNP.value; redrawNP();}
 zoomOP.oninput=()=>{OP.scale=+zoomOP.value; zOP.textContent=zoomOP.value; redrawOP();}
 
