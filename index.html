@@ -49,7 +49,7 @@
     <button class="btn-download" onclick="downloadCanvas('kanvasNP', 'Vektor_Non_Posisi')">📥 Simpan Gambar</button>
     <div class="result" id="hasilAB"></div>
     <canvas id="kanvasNP"></canvas>
-    <div class="controls">Zoom: <input type="range" id="zoomNP" min="10" max="150" value="30"> <span id="zNP">30</span></div>
+    <div class="controls">Zoom: <input type="range" id="zoomNP" min="10" max="150" value="50"> <span id="zNP">50</span></div>
 </div>
 
 <div class="card">
@@ -61,7 +61,7 @@
     <button class="btn-download" onclick="downloadCanvas('kanvasOP', 'Operasi_Vektor')">📥 Simpan Gambar</button>
     <div class="result" id="hasilJumlah"></div>
     <canvas id="kanvasOP"></canvas>
-    <div class="controls">Zoom: <input type="range" id="zoomOP" min="10" max="150" value="30"> <span id="zOP">30</span></div>
+    <div class="controls">Zoom: <input type="range" id="zoomOP" min="10" max="150" value="50"> <span id="zOP">50</span></div>
 </div>
 
 <div class="card">
@@ -79,7 +79,7 @@
 </div>
 
 <script>
-// --- FUNGSI DASAR ---
+// --- FUNGSI DASAR (Sama dengan kodinganmu) ---
 function vHTML(x, y) { return `\\( \\begin{pmatrix} ${x} \\\\ ${y} \\end{pmatrix} \\)`; }
 function ambilNilai(id) {
     let val = document.getElementById(id).value;
@@ -87,7 +87,6 @@ function ambilNilai(id) {
     return +val;
 }
 
-// 1. Negatif
 function negatif(){
     try {
         let x=ambilNilai('ax'), y=ambilNilai('ay');
@@ -96,7 +95,6 @@ function negatif(){
     } catch(e){}
 }
 
-// 2. Posisi
 function posisi(){
     try {
         let x=ambilNilai('px'), y=ambilNilai('py');
@@ -209,74 +207,79 @@ function redrawOP(){ drawGrid(OP.ctx, OP.ox, OP.oy, OP.scale, false); if(dataOP)
 
 function downloadCanvas(id, name) { const link = document.createElement('a'); link.download = name + '.png'; link.href = document.getElementById(id).toDataURL(); link.click(); }
 
-// --- SISTEM QUIZ CAMPURAN ---
+// --- QUIZ & SLIDER (Original Logic) ---
+function updateSliderNP(v) { v=Math.max(10, Math.min(150, v)); NP.scale=v; document.getElementById('zoomNP').value=v; document.getElementById('zNP').textContent=Math.round(v); redrawNP(); }
+function updateSliderOP(v) { v=Math.max(10, Math.min(150, v)); OP.scale=v; document.getElementById('zoomOP').value=v; document.getElementById('zOP').textContent=Math.round(v); redrawOP(); }
+zoomNP.oninput=()=>{ updateSliderNP(+zoomNP.value); }
+zoomOP.oninput=()=>{ updateSliderOP(+zoomOP.value); }
+
+// --- PERBAIKAN: INTERAKSI MOUSE & SENTUH ---
+function makeDraggable(o){
+    let c=o.c;
+    const getD=(t)=>Math.hypot(t[0].clientX-t[1].clientX, t[0].clientY-t[1].clientY);
+
+    // MOUSE EVENTS (Laptop)
+    c.addEventListener('mousedown', e => {
+        o.drag = true;
+        o.x0 = e.clientX; o.y0 = e.clientY;
+        c.style.cursor = 'grabbing';
+    });
+    window.addEventListener('mousemove', e => {
+        if (!o.drag) return;
+        o.ox += e.clientX - o.x0; o.oy += e.clientY - o.y0;
+        o.x0 = e.clientX; o.y0 = e.clientY;
+        o === NP ? redrawNP() : redrawOP();
+    });
+    window.addEventListener('mouseup', () => { o.drag = false; c.style.cursor = 'grab'; });
+
+    // TOUCH EVENTS (HP)
+    c.addEventListener('touchstart', e=>{
+        if(e.touches.length===2) o.lastDist=getD(e.touches);
+        else { 
+            o.drag=true; 
+            o.x0=e.touches[0].clientX; o.y0=e.touches[0].clientY; 
+        }
+        e.preventDefault();
+    }, {passive:false});
+
+    c.addEventListener('touchmove', e=>{
+        if(e.touches.length===2){
+            let d=getD(e.touches); let delta=(d-o.lastDist)*0.5;
+            o===NP ? updateSliderNP(o.scale+delta) : updateSliderOP(o.scale+delta);
+            o.lastDist=d;
+        } else if(o.drag){
+            let x=e.touches[0].clientX, y=e.touches[0].clientY;
+            o.ox+=x-o.x0; o.oy+=y-o.y0;
+            o.x0=x; o.y0=y;
+            o===NP?redrawNP():redrawOP();
+        }
+        e.preventDefault();
+    }, {passive:false});
+    c.addEventListener('touchend', ()=>o.drag=false);
+}
+
+// --- QUIZ SYSTEM (Sama dengan kodinganmu) ---
 let curQ = {};
 function generateQuiz() {
     const types = ['negatif', 'posisi', 'non-posisi', 'jumlah', 'kurang'];
     const selected = types[Math.floor(Math.random() * types.length)];
     const x1=Math.floor(Math.random()*12)-6, y1=Math.floor(Math.random()*12)-6;
     const x2=Math.floor(Math.random()*12)-6, y2=Math.floor(Math.random()*12)-6;
-    
     document.getElementById('inputQuiz').style.display='block';
     document.getElementById('feedbackQuiz').innerText='';
     let badge = document.getElementById('badgeQuiz');
-
-    if(selected === 'negatif') {
-        badge.innerText = "Mode: Vektor Negatif";
-        curQ = { dx: -x1, dy: -y1 };
-        document.getElementById('soalQuiz').innerHTML = `Jika \\(\\vec{a} = (${x1}, ${y1})\\), berapakah vektor \\(-\\vec{a}\\)?`;
-    } else if(selected === 'posisi') {
-        badge.innerText = "Mode: Vektor Posisi";
-        curQ = { dx: x1, dy: y1 };
-        document.getElementById('soalQuiz').innerHTML = `Titik A berada di koordinat (${x1}, ${y1}). Berapakah vektor posisi \\(\\vec{OA}\\)?`;
-    } else if(selected === 'non-posisi') {
-        badge.innerText = "Mode: Vektor Non-Posisi";
-        curQ = { dx: x2-x1, dy: y2-y1 };
-        document.getElementById('soalQuiz').innerHTML = `Jika titik \\(A = (${x1}, ${y1})\\) dan \\(B = (${x2}, ${y2})\\), berapakah vektor \\(\\vec{AB}\\)?`;
-    } else if(selected === 'jumlah') {
-        badge.innerText = "Mode: Penjumlahan";
-        curQ = { dx: x1+x2, dy: y1+y2 };
-        document.getElementById('soalQuiz').innerHTML = `Hasil dari \\( (${x1}, ${y1}) + (${x2}, ${y2}) \\) adalah...`;
-    } else {
-        badge.innerText = "Mode: Pengurangan";
-        curQ = { dx: x1-x2, dy: y1-y2 };
-        document.getElementById('soalQuiz').innerHTML = `Hasil dari \\( (${x1}, ${y1}) - (${x2}, ${y2}) \\) adalah...`;
-    }
+    if(selected === 'negatif') { badge.innerText = "Mode: Vektor Negatif"; curQ = { dx: -x1, dy: -y1 }; document.getElementById('soalQuiz').innerHTML = `Jika \\(\\vec{a} = (${x1}, ${y1})\\), berapakah \\(-\\vec{a}\\)?`; }
+    else if(selected === 'posisi') { badge.innerText = "Mode: Vektor Posisi"; curQ = { dx: x1, dy: y1 }; document.getElementById('soalQuiz').innerHTML = `Titik A(${x1}, ${y1}). Vektor posisi \\(\\vec{OA}\\)?`; }
+    else if(selected === 'non-posisi') { badge.innerText = "Mode: Non-Posisi"; curQ = { dx: x2-x1, dy: y2-y1 }; document.getElementById('soalQuiz').innerHTML = `\\(A = (${x1}, ${y1})\\), \\(B = (${x2}, ${y2})\\). Berapa \\(\\vec{AB}\\)?`; }
+    else if(selected === 'jumlah') { badge.innerText = "Mode: Penjumlahan"; curQ = { dx: x1+x2, dy: y1+y2 }; document.getElementById('soalQuiz').innerHTML = `\\( (${x1}, ${y1}) + (${x2}, ${y2}) \\)?`; }
+    else { badge.innerText = "Mode: Pengurangan"; curQ = { dx: x1-x2, dy: y1-y2 }; document.getElementById('soalQuiz').innerHTML = `\\( (${x1}, ${y1}) - (${x2}, ${y2}) \\)?`; }
     MathJax.typeset();
 }
-
 function checkQuiz() {
     const ux=parseInt(document.getElementById('ansX').value), uy=parseInt(document.getElementById('ansY').value);
     const fb=document.getElementById('feedbackQuiz');
-    if(ux===curQ.dx && uy===curQ.dy) fb.innerHTML="<span style='color:green'>✅ Betul Sekali!</span>";
-    else fb.innerHTML=`<span style='color:red'>❌ Salah. Jawaban benar: (${curQ.dx}, ${curQ.dy})</span>`;
-}
-
-// --- DRAG & ZOOM JARI ---
-function updateSliderNP(v) { v=Math.max(10,150,v); NP.scale=v; document.getElementById('zoomNP').value=v; document.getElementById('zNP').textContent=Math.round(v); redrawNP(); }
-function updateSliderOP(v) { v=Math.max(10,150,v); OP.scale=v; document.getElementById('zoomOP').value=v; document.getElementById('zOP').textContent=Math.round(v); redrawOP(); }
-zoomNP.oninput=()=>{ NP.scale=+zoomNP.value; document.getElementById('zNP').textContent=zoomNP.value; redrawNP(); }
-zoomOP.oninput=()=>{ OP.scale=+zoomOP.value; document.getElementById('zOP').textContent=zoomOP.value; redrawOP(); }
-
-function makeDraggable(o){
-    let c=o.c; const getD=(t)=>Math.hypot(t[0].clientX-t[1].clientX, t[0].clientY-t[1].clientY);
-    c.addEventListener('touchstart', e=>{
-        if(e.touches.length===2) o.lastDist=getD(e.touches);
-        else { o.drag=true; let r=c.getBoundingClientRect(); o.x0=e.touches[0].clientX-r.left; o.y0=e.touches[0].clientY-r.top; }
-        e.preventDefault();
-    }, {passive:false});
-    c.addEventListener('touchmove', e=>{
-        if(e.touches.length===2){
-            let d=getD(e.touches); let delta=(d-o.lastDist)*0.5;
-            if(o===NP) { updateSliderNP(o.scale+delta); } else { updateSliderOP(o.scale+delta); }
-            o.lastDist=d;
-        } else if(o.drag){
-            let r=c.getBoundingClientRect(); let x=e.touches[0].clientX-r.left, y=e.touches[0].clientY-r.top;
-            o.ox+=x-o.x0; o.oy+=y-o.y0; o.x0=x; o.y0=y; o===NP?redrawNP():redrawOP();
-        }
-        e.preventDefault();
-    }, {passive:false});
-    c.addEventListener('touchend', ()=>o.drag=false);
+    if(ux===curQ.dx && uy===curQ.dy) fb.innerHTML="<span style='color:green'>✅ Betul!</span>";
+    else fb.innerHTML=`<span style='color:red'>❌ Salah. Jawaban: (${curQ.dx}, ${curQ.dy})</span>`;
 }
 
 makeDraggable(NP); makeDraggable(OP);
