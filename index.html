@@ -11,18 +11,36 @@
             background-color: #050a14; color: white; overflow-x: hidden;
         }
 
-        /* Background Canvas */
         #canvas-bg {
             position: fixed; top: 0; left: 0;
             width: 100%; height: 100%;
             z-index: 0; display: block;
         }
 
-        /* Konten Mengambang */
+        /* --- HALAMAN VALIDASI --- */
+        #validation-page {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #050a14; z-index: 100;
+            display: flex; justify-content: center; align-items: center;
+            text-align: center;
+        }
+
+        .val-card {
+            background: rgba(15, 23, 42, 0.9);
+            padding: 40px; border-radius: 20px;
+            border: 2px solid #38bdf8; max-width: 500px;
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.3);
+        }
+
+        .btn-val-group { display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 30px; }
+
+        /* --- HALAMAN UTAMA (Hidden at Start) --- */
+        #main-content-wrapper { display: none; }
+
         .main-content {
             position: relative; z-index: 10;
             max-width: 850px; margin: 40px auto;
-            padding: 20px; text-align: left; /* Perubahan: Rata Kiri */
+            padding: 20px; text-align: left;
             pointer-events: none;
         }
 
@@ -34,72 +52,144 @@
             pointer-events: auto;
         }
 
-        h1 { color: #38bdf8; font-size: 2.5rem; margin: 0; text-align: left; }
-        .author { color: #94a3b8; margin-bottom: 30px; text-align: left; }
-        .sub-judul { color: #fbbf24; font-weight: bold; letter-spacing: 2px; margin-bottom: 5px; text-align: left; }
-        .poin-materi { color: #ffffff; font-size: 1.1rem; margin-top: 0; margin-bottom: 25px; text-align: left; }
+        h1 { color: #38bdf8; font-size: 2.5rem; margin: 0; text-align: center; }
+        .author { color: #94a3b8; margin-bottom: 30px; text-align: center; }
+        .sub-judul { color: #fbbf24; font-weight: bold; letter-spacing: 2px; margin-bottom: 5px; }
+        .poin-materi { color: #ffffff; font-size: 1.1rem; margin-top: 0; margin-bottom: 25px; }
 
-        input {
+        /* Form Styling */
+        .input-row { margin-bottom: 12px; display: flex; align-items: center; }
+        input[type="text"] {
             padding: 12px; border-radius: 8px; border: 1px solid #38bdf8;
-            background: rgba(0, 0, 0, 0.7); color: white; margin: 10px 10px 10px 0; width: 40%;
+            background: rgba(0, 0, 0, 0.7); color: white; margin-right: 10px; width: 40%;
         }
 
+        .option-group { margin: 15px 0; padding: 15px; background: rgba(56, 189, 248, 0.1); border-radius: 8px; border-left: 4px solid #fbbf24; }
+        
         button {
-            padding: 12px 30px; background: #38bdf8; border: none;
-            border-radius: 8px; color: #050a14; font-weight: bold;
-            cursor: pointer; transition: 0.3s;
+            padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold;
+            cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s;
+            margin-top: 5px; margin-right: 5px;
         }
 
-        button:hover { background: #fbbf24; transform: scale(1.05); }
+        .btn-add { background: #10b981; color: white; }
+        .btn-generate { background: #38bdf8; color: #050a14; }
+        .btn-clear { background: #f59e0b; color: white; }
+        .btn-reset { background: #ef4444; color: white; }
+        .btn-del-row { background: #ef4444; color: white; padding: 8px 12px; font-size: 0.8rem; }
+        
+        .btn-val-yes { background: #38bdf8; color: #050a14; font-size: 1.2rem; }
+        .btn-val-no { background: #ef4444; color: white; font-size: 1.2rem; }
 
+        /* Output Styling */
         table { width: 100%; border-collapse: collapse; margin-top: 25px; background: rgba(255,255,255,0.05); }
         th, td { padding: 12px; border: 1px solid rgba(56, 189, 248, 0.3); text-align: center; }
         th { background: rgba(56, 189, 248, 0.3); }
-        .total-box { margin-top: 20px; font-size: 1.5rem; color: #fbbf24; font-weight: bold; text-align: left; }
+        .total-box { margin-top: 20px; font-size: 1.5rem; color: #fbbf24; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <canvas id="canvas-bg"></canvas>
 
-    <div class="main-content">
-        <div class="card">
-            <h1>KOMBINATORIK</h1>
-            <p class="author">Created by <b>Doni Stiawan, S.Mat, Gr</b></p>
-            
-            <p class="sub-judul">Aturan Pengisian Tempat</p>
-            <p class="poin-materi">1. Aturan tabel</p>
-            
-            <div class="form">
-                <input type="text" id="k1" placeholder="Kategori 1 (E.g: Baju)">
-                <input type="text" id="d1" placeholder="Pilihan (Merah, Biru)">
-                <br>
-                <input type="text" id="k2" placeholder="Kategori 2 (E.g: Celana)">
-                <input type="text" id="d2" placeholder="Pilihan (Hitam, Putih)">
-                <br>
-                <button onclick="buatTabel()">Generate Tabel</button>
+    <div id="validation-page">
+        <div class="val-card">
+            <h2 id="val-text">Apakah anda menyukai Matematika dan Bapak Doni?</h2>
+            <div class="btn-val-group">
+                <button class="btn-val-yes" onclick="prosesIya()">IYA</button>
+                <button class="btn-val-no" onclick="tolakHalaman()">TIDAK</button>
             </div>
+            <p id="val-warning" style="margin-top: 30px; color: #fbbf24; font-weight: bold; min-height: 60px;"></p>
+        </div>
+    </div>
 
-            <div id="output-tabel"></div>
-            <div id="output-hasil" class="total-box"></div>
+    <div id="main-content-wrapper">
+        <div class="main-content">
+            <div class="card">
+                <h1>KOMBINATORIK</h1>
+                <p class="author">Created by <b>Doni Stiawan, S.Mat, Gr</b></p>
+                
+                <p class="sub-judul">Aturan Pengisian Tempat</p>
+                <p class="poin-materi">1. Aturan tabel (Maksimal 2 Kategori)</p>
+                
+                <div id="input-container">
+                    <div class="input-row">
+                        <input type="text" class="cat-name" placeholder="Jabatan 1 (E.g: Ketua)">
+                        <input type="text" class="cat-data" placeholder="Kandidat (Andi, Budi, Caca)">
+                    </div>
+                </div>
+
+                <div class="option-group">
+                    <p style="margin: 0 0 10px 0; font-weight: bold; color: #38bdf8;">Sifat Pemilihan:</p>
+                    <label><input type="radio" name="repeat" value="yes" checked> Boleh Berulang</label>
+                    <label style="margin-left: 20px;"><input type="radio" name="repeat" value="no"> Tidak Berulang</label>
+                </div>
+                
+                <button class="btn-add" onclick="tambahInput()">+ Tambah Jabatan</button>
+                <button class="btn-reset" onclick="resetForm()">Reset All</button>
+                <br><br>
+                <button class="btn-generate" onclick="buatTabel()">Generate Tabel & Hitung</button>
+                <button class="btn-clear" onclick="hapusTabel()">Hapus Tabel</button>
+
+                <div id="output-tabel"></div>
+                <div id="output-hasil" class="total-box"></div>
+            </div>
         </div>
     </div>
 
     <script>
+        // --- LOGIKA VALIDASI ANTI-KERAS KEPALA ---
+        let tolakCount = 0;
+        let scaleIya = 1;
+        let scaleTidak = 1;
+
+        function tolakHalaman() {
+            tolakCount++;
+            const warning = document.getElementById('val-warning');
+            const btnIya = document.querySelector('.btn-val-yes');
+            const btnTidak = document.querySelector('.btn-val-no');
+
+            if (tolakCount === 1) {
+                warning.innerText = "Harus suka ya tidak boleh tidak suka.";
+            } else if (tolakCount === 2) {
+                warning.innerText = "Woy udah dibilang pencet IYA! 😡";
+            } else if (tolakCount === 3) {
+                warning.innerText = "Pencet TIDAK berarti kamu JELEK! 🤮";
+                warning.style.color = "#ef4444";
+            } else {
+                warning.innerText = "Pokoknya harus pencet IYA! Gak ada pilihan lain!";
+                scaleIya += 0.4;
+                scaleTidak -= 0.2;
+                btnIya.style.transform = `scale(${scaleIya})`;
+                btnTidak.style.transform = `scale(${scaleTidak})`;
+                if(scaleTidak <= 0.2) btnTidak.style.opacity = "0";
+                if(scaleTidak <= 0) btnTidak.style.display = "none";
+            }
+        }
+
+        function prosesIya() {
+            const warning = document.getElementById('val-warning');
+            warning.innerText = "Nah gitu dong! Kamu emang GANTENG/CANTIK! ✨";
+            warning.style.color = "#10b981";
+            warning.style.fontSize = "1.4rem";
+            
+            setTimeout(() => {
+                document.getElementById('validation-page').style.display = 'none';
+                document.getElementById('main-content-wrapper').style.display = 'block';
+                init();
+                animate();
+            }, 1500);
+        }
+
+        // --- KODINGAN BACKGROUND PARTIKEL ---
         const canvas = document.getElementById('canvas-bg');
         const ctx = canvas.getContext('2d');
         let particles = [];
         const mouse = { x: null, y: null, radius: 180 };
-
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-
         window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
-        window.addEventListener('resize', () => { 
-            canvas.width = window.innerWidth; 
-            canvas.height = window.innerHeight; 
-            init(); 
-        });
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; init(); });
 
         class Particle {
             constructor() {
@@ -122,9 +212,7 @@
 
         function init() {
             particles = [];
-            for (let i = 0; i < 100; i++) {
-                particles.push(new Particle());
-            }
+            for (let i = 0; i < 100; i++) particles.push(new Particle());
         }
 
         function connect() {
@@ -133,20 +221,10 @@
                     let dx = particles[a].x - particles[b].x;
                     let dy = particles[a].y - particles[b].y;
                     let dist = Math.sqrt(dx * dx + dy * dy);
-
                     if (dist < 120) {
                         ctx.strokeStyle = `rgba(96, 165, 250, ${1 - dist/120})`;
                         ctx.lineWidth = 0.5;
                         ctx.beginPath(); ctx.moveTo(particles[a].x, particles[a].y); ctx.lineTo(particles[b].x, particles[b].y); ctx.stroke();
-                    }
-
-                    let mdx = particles[a].x - mouse.x;
-                    let mdy = particles[a].y - mouse.y;
-                    let mDist = Math.sqrt(mdx * mdx + mdy * mdy);
-                    if (mDist < mouse.radius) {
-                        ctx.strokeStyle = `rgba(251, 191, 36, ${1 - mDist/mouse.radius})`;
-                        ctx.lineWidth = 1;
-                        ctx.beginPath(); ctx.moveTo(particles[a].x, particles[a].y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke();
                     }
                 }
             }
@@ -159,29 +237,77 @@
             requestAnimationFrame(animate);
         }
 
-        function buatTabel() {
-            const data1 = document.getElementById('d1').value.split(',').map(s => s.trim()).filter(s => s != "");
-            const data2 = document.getElementById('d2').value.split(',').map(s => s.trim()).filter(s => s != "");
-            
-            if(data1.length < 1 || data2.length < 1) return alert("Isi pilihannya dulu!");
+        // --- FITUR TABEL KOMBINATORIK ---
+        function tambahInput() {
+            const container = document.getElementById('input-container');
+            if (container.getElementsByClassName('input-row').length >= 2) {
+                alert("Maksimal 2 kategori untuk visualisasi tabel ya Pak!");
+                return;
+            }
+            const div = document.createElement('div');
+            div.className = 'input-row';
+            div.innerHTML = `
+                <input type="text" class="cat-name" placeholder="Jabatan/Kategori Berikutnya">
+                <input type="text" class="cat-data" placeholder="Pilihan (Pisahkan dengan koma)">
+                <button class="btn-del-row" onclick="this.parentElement.remove()">✕ Hapus</button>
+            `;
+            container.appendChild(div);
+        }
 
-            let res = `<table><tr><th>${document.getElementById('k1').value || 'K1'} \\ ${document.getElementById('k2').value || 'K2'}</th>`;
-            data2.forEach(d => res += `<th>${d}</th>`);
+        function hapusTabel() {
+            document.getElementById('output-tabel').innerHTML = "";
+            document.getElementById('output-hasil').innerHTML = "";
+        }
+
+        function resetForm() {
+            hapusTabel();
+            document.getElementById('input-container').innerHTML = `
+                <div class="input-row">
+                    <input type="text" class="cat-name" placeholder="Jabatan 1">
+                    <input type="text" class="cat-data" placeholder="Kandidat">
+                </div>
+            `;
+        }
+
+        function buatTabel() {
+            const catNames = document.querySelectorAll('.cat-name');
+            const catDatas = document.querySelectorAll('.cat-data');
+            const allowRepeat = document.querySelector('input[name="repeat"]:checked').value === "yes";
+            
+            let allCategories = [];
+            for (let i = 0; i < catNames.length; i++) {
+                let name = catNames[i].value || `Kategori ${i+1}`;
+                let data = catDatas[i].value.split(',').map(s => s.trim()).filter(s => s !== "");
+                if (data.length > 0) allCategories.push({ name, data });
+            }
+
+            if (allCategories.length < 2) return alert("Mohon isi 2 kategori/jabatan!");
+
+            let validPairsCount = 0;
+            let c1 = allCategories[0];
+            let c2 = allCategories[1];
+
+            let res = `<table><tr><th>${c1.name} \\ ${c2.name}</th>`;
+            c2.data.forEach(d => res += `<th>${d}</th>`);
             res += "</tr>";
 
-            data1.forEach(v1 => {
+            c1.data.forEach(v1 => {
                 res += `<tr><td style="color:#38bdf8"><b>${v1}</b></td>`;
-                data2.forEach(v2 => res += `<td>(${v1}, ${v2})</td>`);
+                c2.data.forEach(v2 => {
+                    if (!allowRepeat && v1 === v2) {
+                        res += `<td style="color:#ef4444; font-size:0.8rem;">X (Sama)</td>`;
+                    } else {
+                        res += `<td>(${v1}, ${v2})</td>`;
+                        validPairsCount++;
+                    }
+                });
                 res += "</tr>";
             });
             res += "</table>";
 
             document.getElementById('output-tabel').innerHTML = res;
-            document.getElementById('output-hasil').innerHTML = `Total Cara: ${data1.length * data2.length}`;
+            document.getElementById('output-hasil').innerHTML = `Total Cara: ${allowRepeat ? c1.data.length * c2.data.length : validPairsCount} Variasi`;
         }
-
-        init();
-        animate();
     </script>
 </body>
 </html>
